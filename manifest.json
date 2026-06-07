@@ -1,0 +1,20 @@
+{
+  "name": "Apoyo en la autodestrucción",
+  "short_name": "Autodestrucción",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#09070c",
+  "theme_color": "#09070c",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    }
+  ]
+}

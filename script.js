@@ -47,6 +47,7 @@ const btnStart = document.getElementById('btn-start');
 const btnComplete = document.getElementById('btn-complete');
 const btnPartial = document.getElementById('btn-partial');
 const btnSkip = document.getElementById('btn-skip');
+const btnReset = document.getElementById('btn-reset');
 const btnChange = document.getElementById('btn-change');
 const saveToday = document.getElementById('save-today');
 const noteInput = document.getElementById('note-input');
@@ -246,6 +247,7 @@ btnStart.addEventListener('click', () => {
 btnComplete.addEventListener('click', () => updateStatus('Completado'));
 btnPartial.addEventListener('click', () => updateStatus('Parcial'));
 btnSkip.addEventListener('click', () => updateStatus('Saltado'));
+btnReset.addEventListener('click', () => updateStatus('Pendiente'));
 btnChange.addEventListener('click', () => {
   const next = getSmartRecommendation();
   assignWorkout(next.id);
@@ -261,6 +263,13 @@ saveToday.addEventListener('click', () => {
   day.run = { distance: runDistance.value, time: runTime.value, pace: runPace.value };
   saveState();
   renderToday();
+});
+
+todayState.addEventListener('click', () => {
+  const day = state.days[todayIndex];
+  if (day.status !== 'Pendiente') {
+    updateStatus('Pendiente');
+  }
 });
 
 function updateStatus(status) {

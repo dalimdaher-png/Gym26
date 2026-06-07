@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diario de Entrenamiento Oscuro</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">☾</span>
+        <div>
+          <h1>Crónica de Fuerza</h1>
+          <p>Rutinas reales, ritmo flexible, estilo oscuro.</p>
+        </div>
+      </div>
+      <button id="open-settings" class="icon-button" aria-label="Abrir ajustes">⚙</button>
+    </header>
+
+    <main class="content" id="appContent">
+      <section id="screen-today" class="screen active">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Hoy</p>
+            <h2 id="today-title">Tu entrenamiento del día</h2>
+          </div>
+          <span class="pill" id="today-type">Cargando...</span>
+        </div>
+
+        <div class="card summary-card">
+          <div class="summary-grid">
+            <div>
+              <p class="label">Estado</p>
+              <p id="today-state">Pendiente</p>
+            </div>
+            <div>
+              <p class="label">Duración</p>
+              <p id="today-duration">--</p>
+            </div>
+            <div>
+              <p class="label">Semana</p>
+              <p id="today-week">Semana 1</p>
+            </div>
+          </div>
+          <p class="description" id="today-description">Selecciona tu entrenamiento y comienza.</p>
+        </div>
+
+        <div class="card actions-card">
+          <div class="button-row">
+            <button id="btn-start" class="secondary">Empezar</button>
+            <button id="btn-complete" class="primary">Completar</button>
+          </div>
+          <div class="button-row">
+            <button id="btn-partial" class="secondary">Hecho parcial</button>
+            <button id="btn-skip" class="secondary">Saltar</button>
+          </div>
+          <button id="btn-change" class="ghost">Cambiar entrenamiento</button>
+        </div>
+
+        <div class="card selector-card">
+          <p class="eyebrow">Elegir entrenamiento de hoy</p>
+          <div id="today-picker" class="picker-grid"></div>
+        </div>
+
+        <div class="card detail-card">
+          <div class="detail-header">
+            <h3>Detalle de la sesión</h3>
+            <button id="toggle-detail" class="ghost">Mostrar / ocultar</button>
+          </div>
+          <div id="today-details" class="detail-body"></div>
+        </div>
+
+        <div class="card form-card" id="today-form-card">
+          <div class="form-row">
+            <label for="note-input">Notas del día</label>
+            <textarea id="note-input" rows="3" placeholder="Escribe cómo te sentiste, carga, o cualquier detalle..."></textarea>
+          </div>
+          <div class="form-row split-row">
+            <div>
+              <label for="energy-select">Sensación</label>
+              <select id="energy-select">
+                <option value="">Selecciona</option>
+                <option value="Baja">Energía baja</option>
+                <option value="Media">Energía media</option>
+                <option value="Alta">Energía alta</option>
+              </select>
+            </div>
+            <div>
+              <label for="intensity-select">Intensidad</label>
+              <select id="intensity-select">
+                <option value="">Selecciona</option>
+                <option value="Liviano">Liviano</option>
+                <option value="Medio">Medio</option>
+                <option value="Fuerte">Fuerte</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row hide" id="run-metrics-row">
+            <div>
+              <label for="run-distance">Distancia (km)</label>
+              <input id="run-distance" type="number" step="0.1" min="0" placeholder="Ej. 6.2" />
+            </div>
+            <div>
+              <label for="run-time">Tiempo</label>
+              <input id="run-time" type="text" placeholder="Ej. 50:30" />
+            </div>
+            <div>
+              <label for="run-pace">Ritmo</label>
+              <input id="run-pace" type="text" placeholder="Ej. 5:20" />
+            </div>
+          </div>
+          <button id="save-today" class="primary full-width">Guardar progreso</button>
+        </div>
+      </section>
+
+      <section id="screen-routines" class="screen">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Rutinas</p>
+            <h2>Gimnasio y Calistenia</h2>
+          </div>
+          <span class="pill">Cargadas</span>
+        </div>
+        <div class="card routine-card" id="routine-a"></div>
+        <div class="card routine-card" id="routine-b"></div>
+        <div class="card routine-card" id="routine-c"></div>
+        <div class="card routine-card" id="routine-calistenia"></div>
+      </section>
+
+      <section id="screen-running" class="screen">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Running</p>
+            <h2>Biblioteca y progresión</h2>
+          </div>
+          <span class="pill">Entrenador</span>
+        </div>
+        <div class="card running-card" id="running-progression"></div>
+        <div class="card running-library" id="running-library"></div>
+      </section>
+
+      <section id="screen-week" class="screen">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Semana</p>
+            <h2>Resumen semanal</h2>
+          </div>
+          <span class="pill">Visión clara</span>
+        </div>
+        <div class="card stats-grid" id="week-stats"></div>
+        <div class="card summary-list" id="week-summary"></div>
+      </section>
+
+      <section id="screen-history" class="screen">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Historial</p>
+            <h2>Registro por fecha</h2>
+          </div>
+          <span class="pill">Guardado</span>
+        </div>
+        <div id="history-list"></div>
+      </section>
+
+      <section id="screen-settings" class="screen">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Ajustes</p>
+            <h2>Controles y preferencias</h2>
+          </div>
+          <span class="pill">Personaliza</span>
+        </div>
+        <div class="card settings-card">
+          <div class="form-row split-row">
+            <div>
+              <label for="target-calistenia">Calistenia / semana</label>
+              <input id="target-calistenia" type="number" min="0" max="7" />
+            </div>
+            <div>
+              <label for="target-gimnasio">Gimnasio / semana</label>
+              <input id="target-gimnasio" type="number" min="0" max="7" />
+            </div>
+          </div>
+          <div class="form-row split-row">
+            <div>
+              <label for="target-running">Running fijo / semana</label>
+              <input id="target-running" type="number" min="0" max="7" />
+            </div>
+            <div>
+              <label for="optional-running">Running opcional</label>
+              <select id="optional-running">
+                <option value="true">Activado</option>
+                <option value="false">Desactivado</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row split-row">
+            <div>
+              <label for="mode-select">Modo</label>
+              <select id="mode-select">
+                <option value="flexible">Flexible</option>
+                <option value="calendario">Calendario</option>
+              </select>
+            </div>
+            <div>
+              <label for="strategy-select">Modo running</label>
+              <select id="strategy-select">
+                <option value="2-dias">2 días running</option>
+                <option value="3-dias">3 días running</option>
+                <option value="cargada">Semana cargada</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row split-row">
+            <div>
+              <label for="progression-week">Semana de progresión</label>
+              <select id="progression-week">
+                <option value="1">Semana 1</option>
+                <option value="2">Semana 2</option>
+                <option value="3">Semana 3</option>
+                <option value="4">Semana 4</option>
+                <option value="5">Semana 5</option>
+                <option value="6">Semana 6</option>
+                <option value="7">Semana 7</option>
+                <option value="8">Semana 8</option>
+              </select>
+            </div>
+            <div>
+              <label for="smart-recommendations">Recomendaciones</label>
+              <select id="smart-recommendations">
+                <option value="true">Activadas</option>
+                <option value="false">Desactivadas</option>
+              </select>
+            </div>
+          </div>
+          <div class="button-row">
+            <button id="reset-week" class="secondary full-width">Resetear semana</button>
+            <button id="clear-history" class="secondary full-width">Borrar historial</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Navegación principal">
+      <button data-screen="screen-today" class="nav-button active">Hoy</button>
+      <button data-screen="screen-routines" class="nav-button">Rutinas</button>
+      <button data-screen="screen-running" class="nav-button">Running</button>
+      <button data-screen="screen-week" class="nav-button">Semana</button>
+      <button data-screen="screen-history" class="nav-button">Historial</button>
+    </nav>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

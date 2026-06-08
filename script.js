@@ -27,9 +27,11 @@ const DEFAULT_STATE = {
     runningMode: '2-dias',
     progressionWeek: 1,
     smartRecommendations: true,
+    garmin: { backendUrl: '', apiKey: '' },
   },
   days: [],
-  history: []
+  history: [],
+  garminCache: null
 };
 
 const screens = document.querySelectorAll('.screen');
@@ -77,6 +79,13 @@ const progressionWeek = document.getElementById('progression-week');
 const smartRecommendations = document.getElementById('smart-recommendations');
 const resetWeek = document.getElementById('reset-week');
 const clearHistory = document.getElementById('clear-history');
+const garminUpdated = document.getElementById('garmin-updated');
+const garminStatusCard = document.getElementById('garmin-status-card');
+const garminStatusText = document.getElementById('garmin-status-text');
+const garminRefresh = document.getElementById('garmin-refresh');
+const garminStats = document.getElementById('garmin-stats');
+const garminBackendUrl = document.getElementById('garmin-backend-url');
+const garminApiKey = document.getElementById('garmin-api-key');
 
 let state = loadState();
 let todayIndex = 0;
@@ -110,7 +119,10 @@ function loadState() {
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored) {
     try {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      if (!parsed.settings.garmin) parsed.settings.garmin = { backendUrl: '', apiKey: '' };
+      if (!('garminCache' in parsed)) parsed.garminCache = null;
+      return parsed;
     } catch (err) {
       console.warn('No se pudo parsear storage, reset.', err);
     }
@@ -438,6 +450,85 @@ function renderHistory() {
   });
 }
 
+function formatGarminTimestamp(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleString('es-CL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+}
+
+function formatDuration(seconds) {
+  if (seconds === null || seconds === undefined) return '--';
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.round((seconds % 3600) / 60);
+  return `${hours}h ${minutes}m`;
+}
+
+function renderGarminStats(snapshot) {
+  const { steps, heartRate, sleep, bodyBattery, trainingReadiness } = snapshot;
+  garminStats.innerHTML = `
+    <div class="stat-card"><h3>Pasos</h3><p>${steps && steps.total != null ? steps.total.toLocaleString('es-CL') : '--'}${steps && steps.goal ? ` / ${steps.goal.toLocaleString('es-CL')}` : ''}</p></div>
+    <div class="stat-card"><h3>FC en reposo</h3><p>${heartRate && heartRate.resting != null ? `${heartRate.resting} ppm` : '--'}</p></div>
+    <div class="stat-card"><h3>Sueño</h3><p>${sleep ? formatDuration(sleep.durationSeconds) : '--'}${sleep && sleep.score != null ? ` · ${sleep.score}` : ''}</p></div>
+    <div class="stat-card"><h3>Body Battery</h3><p>${bodyBattery && bodyBattery.latest != null ? bodyBattery.latest : '--'}</p></div>
+    <div class="stat-card"><h3>Preparación</h3><p>${trainingReadiness && trainingReadiness.score != null ? `${trainingReadiness.score} · ${trainingReadiness.level || ''}` : '--'}</p></div>
+  `;
+  garminStats.classList.remove('hide');
+}
+
+async function fetchGarminSnapshot(forceRefresh) {
+  const { backendUrl, apiKey } = state.settings.garmin;
+  const url = `${backendUrl.replace(/\/$/, '')}/api/garmin/today${forceRefresh ? '?refresh=true' : ''}`;
+  const response = await fetch(url, { headers: { 'x-api-key': apiKey } });
+  if (!response.ok) throw new Error(`El servidor respondió con estado ${response.status}`);
+  return response.json();
+}
+
+async function renderGarmin(options = {}) {
+  const { backendUrl, apiKey } = state.settings.garmin;
+
+  if (!backendUrl || !apiKey) {
+    garminStatusText.textContent = 'Configura la URL del servidor y la clave API en Ajustes → Garmin para ver tus datos aquí.';
+    garminRefresh.classList.add('hide');
+    garminStats.classList.add('hide');
+    garminUpdated.textContent = 'Sin configurar';
+    return;
+  }
+
+  garminRefresh.classList.remove('hide');
+
+  if (state.garminCache) {
+    renderGarminStats(state.garminCache);
+    garminUpdated.textContent = `Actualizado ${formatGarminTimestamp(state.garminCache.updatedAt)}`;
+    garminStatusText.textContent = 'Mostrando los últimos datos disponibles.';
+  } else {
+    garminStatusText.textContent = 'Cargando datos de Garmin...';
+  }
+
+  try {
+    const snapshot = await fetchGarminSnapshot(options.forceRefresh);
+    state.garminCache = snapshot;
+    saveState();
+    renderGarminStats(snapshot);
+    garminUpdated.textContent = `Actualizado ${formatGarminTimestamp(snapshot.updatedAt)}`;
+    garminStatusText.textContent = 'Datos actualizados desde Garmin Connect.';
+  } catch (err) {
+    console.warn('No se pudo obtener datos de Garmin:', err);
+    garminStatusText.textContent = state.garminCache
+      ? 'No se pudo actualizar. Mostrando los últimos datos guardados.'
+      : 'No se pudo conectar con el servidor Garmin. Revisa la URL, la clave API y que el servidor esté activo.';
+  }
+}
+
+garminRefresh.addEventListener('click', () => renderGarmin({ forceRefresh: true }));
+
+[garminBackendUrl, garminApiKey].forEach(input => {
+  input.addEventListener('change', () => {
+    state.settings.garmin = { backendUrl: garminBackendUrl.value.trim(), apiKey: garminApiKey.value.trim() };
+    state.garminCache = null;
+    saveState();
+    renderGarmin();
+  });
+});
+
 function renderSettings() {
   targetCalistenia.value = state.settings.weeklyTargets.calistenia;
   targetGimnasio.value = state.settings.weeklyTargets.gimnasio;
@@ -447,6 +538,8 @@ function renderSettings() {
   strategySelect.value = state.settings.runningMode;
   progressionWeek.value = state.settings.progressionWeek;
   smartRecommendations.value = state.settings.smartRecommendations;
+  garminBackendUrl.value = state.settings.garmin.backendUrl;
+  garminApiKey.value = state.settings.garmin.apiKey;
 }
 
 [targetCalistenia, targetGimnasio, targetRunning, optionalRunning, modeSelect, strategySelect, progressionWeek, smartRecommendations].forEach(input => {
@@ -565,6 +658,7 @@ function renderAll() {
   renderWeek();
   renderHistory();
   renderSettings();
+  renderGarmin();
 }
 
 renderAll();

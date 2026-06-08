@@ -148,6 +148,23 @@
         <div class="card running-library" id="running-library"></div>
       </section>
 
+      <section id="screen-garmin" class="screen">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Garmin</p>
+            <h2>Datos de salud y actividad</h2>
+          </div>
+          <span class="pill" id="garmin-updated">Sin datos</span>
+        </div>
+
+        <div class="card" id="garmin-status-card">
+          <p class="description" id="garmin-status-text">Configura tu servidor Garmin en Ajustes para ver tus datos aquí.</p>
+          <button id="garmin-refresh" class="secondary full-width hide">Actualizar</button>
+        </div>
+
+        <div class="card stats-grid hide" id="garmin-stats"></div>
+      </section>
+
       <section id="screen-week" class="screen">
         <div class="section-header">
           <div>
@@ -247,6 +264,19 @@
             <button id="clear-history" class="secondary full-width">Borrar historial</button>
           </div>
         </div>
+
+        <div class="card settings-card">
+          <p class="eyebrow">Garmin</p>
+          <div class="form-row">
+            <label for="garmin-backend-url">URL del servidor Garmin</label>
+            <input id="garmin-backend-url" type="url" placeholder="https://tu-servicio.onrender.com" />
+          </div>
+          <div class="form-row">
+            <label for="garmin-api-key">Clave API</label>
+            <input id="garmin-api-key" type="password" placeholder="Pega aquí tu API key" />
+          </div>
+          <p class="description">Despliega el servidor incluido en <code>server/</code> (ver su README) y pega aquí su URL pública y la clave que definiste como <code>API_KEY</code>.</p>
+        </div>
       </section>
     </main>
 
@@ -254,6 +284,7 @@
       <button data-screen="screen-today" class="nav-button active">Hoy</button>
       <button data-screen="screen-routines" class="nav-button">Rutinas</button>
       <button data-screen="screen-running" class="nav-button">Running</button>
+      <button data-screen="screen-garmin" class="nav-button">Garmin</button>
       <button data-screen="screen-week" class="nav-button">Semana</button>
       <button data-screen="screen-history" class="nav-button">Historial</button>
     </nav>

@@ -50,6 +50,17 @@ async function safeFetch(label, fn) {
   }
 }
 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function fetchSequential(entries) {
+  const results = [];
+  for (const [label, fn] of entries) {
+    results.push(await safeFetch(label, fn));
+    await delay(800);
+  }
+  return results;
+}
+
 async function getBodyBattery(date, displayName) {
   const day = date.toISOString().slice(0, 10);
   const url = `https://connect.garmin.com/modern/proxy/wellness-service/wellness/bodyBattery/reports/daily`;
@@ -86,21 +97,21 @@ async function buildSnapshot() {
   await ensureLogin();
   const today = new Date();
 
-  const [steps, heartRate, sleep, sleepDuration, bodyBattery, trainingReadiness] = await Promise.all([
-    safeFetch('steps', () => client.getSteps(today)),
-    safeFetch('heartRate', () => client.getHeartRate(today)),
-    safeFetch('sleepData', () => client.getSleepData(today)),
-    safeFetch('sleepDuration', () => client.getSleepDuration(today)),
-    safeFetch('bodyBattery', () => getBodyBattery(today)),
-    safeFetch('trainingReadiness', () => getTrainingReadiness(today)),
+  const [steps, heartRate, sleepData, sleepDuration, bodyBattery, trainingReadiness] = await fetchSequential([
+    ['steps', () => client.getSteps(today)],
+    ['heartRate', () => client.getHeartRate(today)],
+    ['sleepData', () => client.getSleepData(today)],
+    ['sleepDuration', () => client.getSleepDuration(today)],
+    ['bodyBattery', () => getBodyBattery(today)],
+    ['trainingReadiness', () => getTrainingReadiness(today)],
   ]);
 
   return {
     steps: steps ? { total: steps.totalSteps ?? steps.total ?? null, goal: steps.dailyStepGoal ?? null } : null,
     heartRate: heartRate ? { resting: heartRate.restingHeartRate ?? null, latest: heartRate.lastSevenDaysAvgRestingHeartRate ?? null } : null,
-    sleep: sleep ? {
-      durationSeconds: sleepDuration ?? sleep.dailySleepDTO?.sleepTimeSeconds ?? null,
-      score: sleep.dailySleepDTO?.sleepScores?.overall?.value ?? null,
+    sleep: sleepData ? {
+      durationSeconds: sleepDuration ?? sleepData.dailySleepDTO?.sleepTimeSeconds ?? null,
+      score: sleepData.dailySleepDTO?.sleepScores?.overall?.value ?? null,
     } : null,
     bodyBattery,
     trainingReadiness,

@@ -28,17 +28,31 @@ const client = new GarminConnect({
 let loggedIn = false;
 let snapshotCache = null;
 let snapshotCacheAt = 0;
+let lastLoginFailureAt = 0;
+const LOGIN_RETRY_COOLDOWN_MS = 30 * 60 * 1000;
 
 async function ensureLogin() {
   if (loggedIn) return;
-  try {
-    client.loadTokenByFile(TOKEN_DIR);
-    await client.restoreOrLogin(undefined, process.env.GARMIN_EMAIL, process.env.GARMIN_PASSWORD);
-  } catch (err) {
-    await client.login();
+
+  if (lastLoginFailureAt && Date.now() - lastLoginFailureAt < LOGIN_RETRY_COOLDOWN_MS) {
+    const minutesLeft = Math.ceil((LOGIN_RETRY_COOLDOWN_MS - (Date.now() - lastLoginFailureAt)) / 60000);
+    throw new Error(`Garmin Connect nos está limitando (rate limit). Reintentando en ~${minutesLeft} min para no empeorarlo.`);
   }
-  client.saveTokenToFile(TOKEN_DIR);
-  loggedIn = true;
+
+  try {
+    try {
+      client.loadTokenByFile(TOKEN_DIR);
+      await client.restoreOrLogin(undefined, process.env.GARMIN_EMAIL, process.env.GARMIN_PASSWORD);
+    } catch (err) {
+      await client.login();
+    }
+    client.saveTokenToFile(TOKEN_DIR);
+    loggedIn = true;
+    lastLoginFailureAt = 0;
+  } catch (err) {
+    lastLoginFailureAt = Date.now();
+    throw err;
+  }
 }
 
 async function safeFetch(label, fn) {
@@ -147,7 +161,7 @@ app.get('/api/garmin/today', async (req, res) => {
     res.json(snapshot);
   } catch (err) {
     console.error('Error obteniendo datos de Garmin:', err);
-    res.status(502).json({ error: 'No se pudo obtener información de Garmin Connect.' });
+    res.status(502).json({ error: err.message || 'No se pudo obtener información de Garmin Connect.' });
   }
 });
 

@@ -383,6 +383,14 @@ input:focus, select:focus, textarea:focus {
   margin-top: 10px;
 }
 
+.empty-state {
+  margin: 0;
+  padding: 24px 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .list-item {
   display: flex;
   justify-content: space-between;

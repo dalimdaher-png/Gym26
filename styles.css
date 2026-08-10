@@ -480,25 +480,224 @@ input:focus, select:focus, textarea:focus {
   right: 0;
   bottom: 0;
   padding: 10px 10px 16px;
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   backdrop-filter: blur(18px);
   background: rgba(8, 6, 12, 0.95);
   border-top: 1px solid rgba(255,255,255,0.06);
 }
 
 .nav-button {
+  flex: 0 0 auto;
+  min-width: 76px;
   border: none;
   border-radius: 18px;
   padding: 12px 10px;
   background: rgba(255,255,255,0.03);
   color: var(--text);
-  font-size: 0.92rem;
+  font-size: 0.86rem;
 }
 
 .nav-button.active {
   background: linear-gradient(135deg, rgba(154,90,191,0.26), rgba(54,43,79,0.62));
+}
+
+.garmin-mini-card .detail-header {
+  margin-bottom: 4px;
+}
+
+.garmin-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.garmin-mini-grid .stat-card {
+  padding: 12px;
+  border-radius: 18px;
+}
+
+.garmin-mini-grid .stat-card h3 {
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.garmin-mini-grid .stat-card p {
+  font-size: 1.02rem;
+}
+
+.week-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 2px;
+}
+
+.week-tab-btn {
+  flex: 0 0 auto;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 10px 16px;
+  background: rgba(255,255,255,0.03);
+  color: var(--text);
+  font-size: 0.86rem;
+  white-space: nowrap;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.week-tab-btn.active {
+  background: linear-gradient(135deg, rgba(154,90,191,0.32), rgba(54,43,79,0.7));
+  border-color: rgba(154,90,191,0.4);
+  transform: translateY(-1px);
+}
+
+.progress-line {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.progress-line p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.progress-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #9f5bbe, #623a7c);
+  transition: width 0.3s ease;
+}
+
+.day-card {
+  padding: 16px;
+}
+
+.day-card + .day-card {
+  margin-top: 12px;
+}
+
+.day-card-header {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  color: var(--text);
+}
+
+.day-card-main p {
+  margin: 0;
+}
+
+.day-card-date {
+  color: var(--muted);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.day-card-title {
+  font-size: 1.02rem;
+  margin-top: 4px !important;
+}
+
+.day-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.chip {
+  background: rgba(255,255,255,0.06);
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 0.76rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 0.9rem;
+}
+
+.check-row input {
+  width: auto;
+}
+
+.day-card-body {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: grid;
+  gap: 12px;
+}
+
+.day-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.day-meta-grid p:last-child {
+  margin: 4px 0 0;
+}
+
+.structure-list {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  display: grid;
+  gap: 6px;
+  line-height: 1.5;
+}
+
+.run-log-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.run-log-grid label {
+  display: block;
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+}
+
+.badge-running_facil { background: rgba(111,174,143,0.16); color: #bfe3d1; }
+.badge-running_calidad { background: rgba(196,112,63,0.18); color: #f0c19c; }
+.badge-fondo { background: rgba(91,132,177,0.2); color: #bcd6f0; }
+.badge-gimnasio { background: rgba(154,90,191,0.16); color: var(--text); }
+.badge-calistenia { background: rgba(178,90,154,0.18); color: #f0c1e2; }
+.badge-recuperacion { background: rgba(138,138,149,0.18); color: #d4d3da; }
+
+@media (min-width: 480px) {
+  .garmin-mini-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 720px) {

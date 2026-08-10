@@ -19,6 +19,8 @@ Aplicación web estática para organizar entrenamientos semanales de calistenia,
 
 ## Funcionalidades incluidas
 
+- Pantalla `Agosto` con el plan fijo de running + gimnasio + calistenia (10 al 31 de agosto), organizado en pestañas por semana, progreso semanal, resumen de running y registro de cada sesión (km, tiempo, ritmo, FC, carga Garmin, sensaciones).
+- Card de referencia Garmin (VO2 máx, FC reposo, umbral, ritmo y potencia de umbral) editable desde Ajustes → Datos Garmin (manual).
 - Pantalla `Hoy` con entrenamiento sugerido, detalles y botones de acción.
 - Rutinas de gimnasio cargadas (Día A, B, C) y calistenia.
 - Biblioteca de running con 11 entrenamientos.

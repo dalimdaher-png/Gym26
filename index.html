@@ -122,6 +122,36 @@
         </div>
       </section>
 
+      <section id="screen-agosto" class="screen">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Entrenamiento</p>
+            <h2>Plan de Agosto</h2>
+          </div>
+          <span class="pill" id="agosto-range">10 – 31 ago</span>
+        </div>
+
+        <div class="card garmin-mini-card">
+          <div class="detail-header">
+            <p class="eyebrow">Referencia Garmin</p>
+            <button type="button" class="ghost" id="agosto-edit-garmin">Editar</button>
+          </div>
+          <div class="garmin-mini-grid" id="agosto-garmin-mini"></div>
+        </div>
+
+        <div class="week-tabs" id="agosto-week-tabs" role="tablist"></div>
+
+        <div class="card week-summary-card">
+          <div class="progress-line">
+            <p id="agosto-progress-label">Entrenamientos completados: 0/7</p>
+            <div class="progress-bar"><div class="progress-fill" id="agosto-progress-fill" style="width:0%"></div></div>
+          </div>
+          <div class="stats-grid" id="agosto-run-summary"></div>
+        </div>
+
+        <div id="agosto-days"></div>
+      </section>
+
       <section id="screen-routines" class="screen">
         <div class="section-header">
           <div>
@@ -240,11 +270,51 @@
           </div>
           <p class="description">Despliega el servidor incluido en <code>server/</code> (ver su README) y pega aquí su URL pública y la clave que definiste como <code>API_KEY</code>.</p>
         </div>
+
+        <div class="card settings-card">
+          <p class="eyebrow">Datos Garmin (manual)</p>
+          <p class="description">Estos valores alimentan la card de referencia del Plan de Agosto. Actualízalos cuando cambien tus métricas.</p>
+          <div class="form-row split-row">
+            <div>
+              <label for="garmin-manual-weight">Peso (kg)</label>
+              <input id="garmin-manual-weight" type="number" step="0.1" min="0" />
+            </div>
+            <div>
+              <label for="garmin-manual-vo2">VO2 máx</label>
+              <input id="garmin-manual-vo2" type="number" step="1" min="0" />
+            </div>
+          </div>
+          <div class="form-row split-row">
+            <div>
+              <label for="garmin-manual-resting">FC reposo (ppm)</label>
+              <input id="garmin-manual-resting" type="number" step="1" min="0" />
+            </div>
+            <div>
+              <label for="garmin-manual-threshold">Umbral de lactato (ppm)</label>
+              <input id="garmin-manual-threshold" type="number" step="1" min="0" />
+            </div>
+          </div>
+          <div class="form-row split-row">
+            <div>
+              <label for="garmin-manual-threshold-pace">Ritmo de umbral (min/km)</label>
+              <input id="garmin-manual-threshold-pace" type="text" placeholder="Ej. 5:33" />
+            </div>
+            <div>
+              <label for="garmin-manual-threshold-power">Potencia de umbral (W)</label>
+              <input id="garmin-manual-threshold-power" type="number" step="1" min="0" />
+            </div>
+          </div>
+          <div class="form-row">
+            <label for="garmin-manual-relative-power">Potencia relativa (W/kg)</label>
+            <input id="garmin-manual-relative-power" type="number" step="0.01" min="0" />
+          </div>
+        </div>
       </section>
     </main>
 
     <nav class="bottom-nav" aria-label="Navegación principal">
       <button data-screen="screen-today" class="nav-button active">Hoy</button>
+      <button data-screen="screen-agosto" class="nav-button">Agosto</button>
       <button data-screen="screen-routines" class="nav-button">Rutinas</button>
       <button data-screen="screen-running" class="nav-button">Running</button>
       <button data-screen="screen-garmin" class="nav-button">Garmin</button>

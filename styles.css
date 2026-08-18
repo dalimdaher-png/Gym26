@@ -595,6 +595,7 @@ input:focus, select:focus, textarea:focus {
   border: none;
   padding: 0;
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   gap: 10px;
@@ -674,13 +675,13 @@ input:focus, select:focus, textarea:focus {
   line-height: 1.5;
 }
 
-.run-log-grid {
+.log-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
 
-.run-log-grid label {
+.log-grid label {
   display: block;
   color: var(--muted);
   font-size: 0.8rem;
@@ -693,6 +694,113 @@ input:focus, select:focus, textarea:focus {
 .badge-gimnasio { background: rgba(154,90,191,0.16); color: var(--text); }
 .badge-calistenia { background: rgba(178,90,154,0.18); color: #f0c1e2; }
 .badge-recuperacion { background: rgba(138,138,149,0.18); color: #d4d3da; }
+.badge-descanso { background: rgba(120,120,130,0.16); color: #c7c6ce; }
+
+.day-card-status-row {
+  width: 100%;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.status-pill {
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+.status-pendiente { background: rgba(255,255,255,0.06); color: var(--muted); }
+.status-completado { background: rgba(111,174,143,0.2); color: #bfe3d1; }
+.status-omitido { background: rgba(196,112,63,0.16); color: #f0c19c; }
+
+.status-control {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 10px 0;
+}
+
+.status-btn {
+  flex: 1 1 auto;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 8px 6px;
+  background: rgba(255,255,255,0.03);
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.status-btn.active.status-pendiente { background: rgba(255,255,255,0.1); color: var(--text); border-color: rgba(255,255,255,0.16); }
+.status-btn.active.status-completado { background: rgba(111,174,143,0.22); color: #bfe3d1; border-color: rgba(111,174,143,0.4); }
+.status-btn.active.status-omitido { background: rgba(196,112,63,0.2); color: #f0c19c; border-color: rgba(196,112,63,0.4); }
+
+.warning-chip {
+  background: rgba(214,90,90,0.18);
+  color: #f3b3b3;
+}
+
+.warning-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: #f3b3b3;
+  margin-top: 4px;
+}
+
+.warning-check input {
+  width: auto;
+}
+
+.bike-block, .sub-activity {
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.02);
+  display: grid;
+  gap: 10px;
+}
+
+.sub-activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.sub-activity-title {
+  margin: 0;
+  font-weight: 600;
+}
+
+.week-objectives-card {
+  display: grid;
+  gap: 10px;
+}
+
+.objectives-list {
+  display: grid;
+  gap: 8px;
+}
+
+.objective-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.03);
+  font-size: 0.86rem;
+}
+
+.objective-row strong {
+  text-align: right;
+  font-weight: 600;
+}
 
 @media (min-width: 480px) {
   .garmin-mini-grid {

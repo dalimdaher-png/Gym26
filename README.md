@@ -1,6 +1,6 @@
 # Diario de Entrenamiento Oscuro
 
-Aplicación web estática para organizar entrenamientos semanales de calistenia, gimnasio y running.
+Aplicación web estática para seguir tu rutina de gimnasio y el objetivo semanal de running.
 
 ## Estructura del proyecto
 
@@ -19,16 +19,10 @@ Aplicación web estática para organizar entrenamientos semanales de calistenia,
 
 ## Funcionalidades incluidas
 
-- Pantalla `Agosto` con el plan fijo de running + gimnasio + calistenia (10 al 31 de agosto), organizado en pestañas por semana, progreso semanal, resumen de running y registro de cada sesión (km, tiempo, ritmo, FC, carga Garmin, sensaciones).
-- Card de referencia Garmin (VO2 máx, FC reposo, umbral, ritmo y potencia de umbral) editable desde Ajustes → Datos Garmin (manual).
-- Pantalla `Hoy` con entrenamiento sugerido, detalles y botones de acción.
-- Rutinas de gimnasio cargadas (Día A, B, C) y calistenia.
-- Biblioteca de running con 11 entrenamientos.
-- Progresión flexible de 8 semanas.
-- Resumen semanal con cumplimiento, parciales, saltados y objetivos.
-- Historial guardado por fecha.
-- Ajustes para targets semanales, modo flexible/calendario, modo running, recomendaciones y semana actual.
-- Almacenamiento en `localStorage`.
+- Pantalla `Running`: un único objetivo de **21 km semanales** (semana de lunes a domingo, se reinicia cada lunes). Registro libre de km por día, con acumulado, restantes, % de cumplimiento, barra de progreso e historial de km por semana. Si superás los 21 km se sigue acumulando la distancia real. Sin días obligatorios, distancias fijas ni objetivos de ritmo. Conserva la card de referencia Garmin y el archivo de Agosto.
+- Pantalla `Rutinas`: rutina activa **Entrenamiento Dali** (4 días, desde la planilla del 10 oct 2026) con series de aproximación vs. efectivas, pesos estimados como "Pendiente de confirmar", aclaraciones y videos del entrenador, marcado de cada serie, peso y repeticiones reales, cargas editables, historial de entrenamientos y última/mejor marca por ejercicio. La rutina anterior queda archivada.
+- Card de referencia Garmin editable desde Ajustes → Datos Garmin (manual).
+- Almacenamiento en `localStorage` (clave `dark-gym-planner-v1`): el historial anterior se conserva.
 
 ## Cómo publicar en GitHub Pages
 

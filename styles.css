@@ -835,3 +835,575 @@ input:focus, select:focus, textarea:focus {
     margin: 0 auto;
   }
 }
+
+/* ============================================================
+   Running: objetivo semanal de 21 km
+   ============================================================ */
+.goal-big {
+  margin: 0 0 14px;
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.goal-big span {
+  font-size: 1.1rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.mini-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.mini-stats .stat-card {
+  padding: 12px;
+  border-radius: 18px;
+  min-width: 0;
+}
+
+.mini-stats .stat-card h3 {
+  margin: 0 0 6px;
+  font-size: 0.7rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.mini-stats .stat-card p {
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+
+.progress-bar.big {
+  height: 16px;
+}
+
+.progress-bar.small {
+  height: 6px;
+  margin-top: 10px;
+}
+
+.progress-fill.is-complete {
+  background: linear-gradient(90deg, #7f9f7f, #4f7a5a);
+}
+
+.running-goal-card .description {
+  margin-top: 14px;
+}
+
+.inline-two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.inline-two > div {
+  min-width: 0;
+}
+
+.running-form-card label,
+.gym-finish label {
+  display: block;
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+}
+
+.running-form-card .form-row {
+  margin-top: 12px;
+}
+
+.form-error {
+  margin: 10px 0 0;
+  color: #f3b3b3;
+  font-size: 0.85rem;
+}
+
+.day-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.day-cell {
+  display: grid;
+  gap: 2px;
+  justify-items: center;
+  padding: 10px 2px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  text-align: center;
+  min-width: 0;
+}
+
+.day-cell span {
+  font-size: 0.68rem;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.day-cell strong {
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.day-cell small {
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+
+.day-cell.has-km {
+  background: rgba(111,174,143,0.14);
+  border-color: rgba(111,174,143,0.3);
+}
+
+.day-cell.today {
+  border-color: rgba(154,90,191,0.7);
+  box-shadow: 0 0 0 2px rgba(154,90,191,0.15);
+}
+
+.week-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.week-row {
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 18px;
+  background: rgba(255,255,255,0.02);
+  padding: 12px 14px;
+}
+
+.week-row summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.week-row summary::-webkit-details-marker {
+  display: none;
+}
+
+.week-row-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px 10px;
+  flex-wrap: wrap;
+}
+
+.week-row-label {
+  font-size: 0.9rem;
+}
+
+.week-row-km {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.week-row-body {
+  margin-top: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.entry-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+  font-size: 0.88rem;
+}
+
+.entry-row strong {
+  margin-left: auto;
+}
+
+.entry-delete {
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  min-width: 44px;
+  min-height: 40px;
+}
+
+.entry-delete.wide {
+  width: 100%;
+  margin-top: 4px;
+}
+
+button.armed {
+  background: rgba(214,90,90,0.22) !important;
+  border-color: rgba(214,90,90,0.5) !important;
+  color: #f3b3b3 !important;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Archivo (historial anterior) */
+.archive-card summary {
+  cursor: pointer;
+  font-weight: 600;
+  list-style: none;
+}
+
+.archive-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.archive-card summary::before {
+  content: '▸ ';
+  color: var(--muted);
+}
+
+.archive-card[open] summary::before {
+  content: '▾ ';
+}
+
+.legacy-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.legacy-item {
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.02);
+  display: grid;
+  gap: 8px;
+}
+
+.legacy-item-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.legacy-item-head p,
+.legacy-item-title {
+  margin: 0;
+}
+
+.legacy-item-title {
+  font-weight: 600;
+}
+
+.legacy-item-data {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.legacy-item-data em {
+  font-style: normal;
+  color: #c8b8c5;
+}
+
+.legacy-warn {
+  color: #f3b3b3;
+}
+
+.legacy-sep {
+  margin: 8px 0 0;
+}
+
+.exercise-list.compact li {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+/* ============================================================
+   Gimnasio: rutina activa con seguimiento por serie
+   ============================================================ */
+.gym-week-line {
+  margin-top: 14px;
+}
+
+.gx-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.gx {
+  padding: 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.02);
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.gx-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.gx-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.gx-title h4 {
+  margin: 0;
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.gx-code {
+  flex: 0 0 auto;
+  min-width: 34px;
+  text-align: center;
+  padding: 4px 8px;
+  border-radius: 10px;
+  background: rgba(154,90,191,0.2);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.gx-links {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.gx-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(91,132,177,0.2);
+  color: #bcd6f0;
+  font-size: 0.8rem;
+  text-decoration: none;
+}
+
+.gx-meta {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.gx-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.gx-note-wrap summary {
+  cursor: pointer;
+  color: #c8b8c5;
+  font-size: 0.85rem;
+}
+
+.gx-note-wrap .gx-note {
+  margin-top: 8px;
+}
+
+.gx-progress {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.gx-progress strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.gx-sets {
+  display: grid;
+  gap: 8px;
+}
+
+.gset {
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.025);
+  display: grid;
+  gap: 10px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.gset.is-approach {
+  border-left: 3px solid rgba(91,132,177,0.75);
+}
+
+.gset.is-effective {
+  border-left: 3px solid rgba(154,90,191,0.75);
+}
+
+.gset.is-done {
+  background: rgba(111,174,143,0.12);
+  border-color: rgba(111,174,143,0.35);
+}
+
+.gset-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.gset-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.gset-check input[type="checkbox"] {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  margin: 0;
+  flex: 0 0 auto;
+  accent-color: #9a5abf;
+}
+
+.gset-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.kind-badge {
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+}
+
+.kind-approach {
+  background: rgba(91,132,177,0.2);
+  color: #bcd6f0;
+}
+
+.kind-effective {
+  background: rgba(154,90,191,0.2);
+  color: #e6d3f2;
+}
+
+.gset-plan {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-align: right;
+}
+
+.gset-fields {
+  display: grid;
+  gap: 8px;
+}
+
+.gset-fields.three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.gset-fields.one {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.gset-field {
+  min-width: 0;
+}
+
+.gset-field label {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 0.7rem;
+  margin-bottom: 4px;
+}
+
+.gset-field input {
+  padding: 10px;
+  border-radius: 12px;
+  min-width: 0;
+}
+
+.pending-pill {
+  border: 1px solid rgba(196,112,63,0.45);
+  background: rgba(196,112,63,0.16);
+  color: #f0c19c;
+  border-radius: 999px;
+  padding: 3px 9px;
+  min-height: 26px;
+  font-size: 0.62rem;
+  line-height: 1.2;
+}
+
+.gx-approach-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+button.ghost.small {
+  width: auto;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+}
+
+.gym-finish {
+  margin-top: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.gym-finish-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.hist-ex {
+  display: grid;
+  gap: 2px;
+  font-size: 0.84rem;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+}
+
+.hist-ex span {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.hist-ex em {
+  font-style: normal;
+  color: #bcd6f0;
+}
+
+@media (min-width: 900px) {
+  .gset-fields.three {
+    max-width: 520px;
+  }
+}

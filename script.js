@@ -2,6 +2,10 @@ const STORAGE_KEY = 'dark-gym-planner-v1';
 
 const RUNNING_WEEKLY_GOAL_KM = 21;
 const GYM_ROUTINE_ID = 'entrenamiento-dali-2026-10-10';
+// Revisión de la rutina del entrenador. Al cambiar, se migran las cargas guardadas (ver normalizeState).
+const GYM_ROUTINE_REV = 'semana-2-2026-10-19';
+// Pesos de la revisión anterior (16/10), para distinguir cargas editadas por vos de cargas que solo se "confirmaron".
+const PREV_WEIGHTS = {"d1-a4:0":"10 kg","d1-b1:0":"120 kg","d1-b1:1":"120 kg","d1-b1:2":"120 kg","d1-b2:0":"14 o 16 kg x lado","d1-b2:1":"14 o 16 kg x lado","d1-b2:2":"14 o 16 kg x lado","d1-b3:0":"50","d1-b3:1":"50","d1-b3:2":"50","d1-c1:0":"30-40","d1-c1:1":"30-40","d2-b2:0":"30","d2-b2:1":"30","d2-b2:2":"30","d2-b3:0":"16-18","d2-b3:1":"16-18","d2-c1:0":"7 kg","d2-c1:1":"7 kg","d2-c1:2":"7 kg","d2-c2:0":"5 o 6","d2-c2:1":"5 o 6","d2-c2:2":"5 o 6","d2-c3:0":"15","d2-c3:1":"15","d2-d1:0":"15 - 17,5","d2-d1:1":"15 - 17,5","d2-d1:2":"15 - 17,5","d3-a4:0":"10 kg","d3-b1:0":"20","d3-b1:1":"30","d3-b1:2":"45","d3-b1:3":"45","d3-b1:4":"45","d3-b2:0":"10 kg x lado","d3-b2:1":"10 kg x lado","d3-b2:2":"10 kg x lado","d3-b3:0":"60-70","d3-b3:1":"60-70","d3-b3:2":"60-70","d3-c1:0":"40-50","d3-c1:1":"40-50","d3-c1:2":"40-50","d3-c3:0":"25-35","d3-c3:1":"25-35","d3-c3:2":"25-35","d3-d1:0":"BW","d3-d1:1":"BW","d3-d1:2":"BW","d4-a4:0":"10 kg","d4-b1:0":"30","d4-b1:1":"50","d4-b1:2":"60-70","d4-b1:3":"60-70","d4-b1:4":"60-70","d4-b2:0":"90 kg","d4-b2:1":"90 kg","d4-b2:2":"90 kg","d4-b2:3":"90 kg","d4-c1:0":"30-40","d4-c1:1":"30-40","d4-c1:2":"30-40"};
 
 /* ============================================================
    Rutina de gimnasio anterior (archivada)
@@ -112,8 +116,8 @@ function circuitoCadera(dayId, buenosDiasLink) {
 
 const GYM_ROUTINE = {
   id: GYM_ROUTINE_ID,
-  name: 'Entrenamiento Dali',
-  source: 'Planilla de Google Drive “Entrenamiento Dali” (10 oct 2026)',
+  name: 'Entrenamiento Dali · Semana 2',
+  source: 'Planilla de Juan Pablo “Entrenamiento Dali”, Semana 2 (19 oct 2026)',
   days: [
     {
       id: 'd1', title: 'Día 1 - Pierna I',
@@ -122,11 +126,11 @@ const GYM_ROUTINE = {
         X('d1', 'B1', 'Hip Thrust', { trackWeight: true, sets: [S(3, '6-8', '120-180"', '120 kg')],
           allowApproach: { weight: '60 - 80 kg' },
           note: 'hace unas series antes de aproximacion con 60 - 80 kg - a partir de ahora empezamos a contar siempre la barra' }),
-        X('d1', 'B2', 'Estocadas búlgaras', { trackWeight: true, sets: [S(3, '8-10', '120-180"', '14 o 16 kg x lado', true)] }),
-        X('d1', 'B3', 'Peso muerto rumano', { trackWeight: true, sets: [S(3, '8-10', '120-180"', '50', true)] }),
-        X('d1', 'C1', 'Isquios en máquina', { trackWeight: true, sets: [S(2, '10-12', '60-90"', '30-40', true)] }),
-        X('d1', 'C2', 'Abductores en máquina o en polea', { trackWeight: true, sets: [S(2, '10-12', '60-90"')] }),
-        X('d1', 'C3', 'Pata de glúteo en polea', { trackWeight: true, sets: [S(2, '15-20', '60-90"')] }),
+        X('d1', 'B2', 'Estocadas búlgaras', { trackWeight: true, sets: [S(3, '8-10', '120-180"', '30 kg + barra')] }),
+        X('d1', 'B3', 'Peso muerto rumano', { trackWeight: true, sets: [S(3, '8-10', '120-180"', '50 kg')] }),
+        X('d1', 'C1', 'Isquios en máquina', { trackWeight: true, sets: [S(2, '10-12', '60-90"', '35 kg')] }),
+        X('d1', 'C2', 'Abductores en polea', { trackWeight: true, sets: [S(2, '12-15', '60-90"', '', true)] }),
+        X('d1', 'C3', 'Pata de glúteo en polea', { trackWeight: true, sets: [S(2, '15-20', '60-90"', '20 kg')] }),
       ],
     },
     {
@@ -145,14 +149,15 @@ const GYM_ROUTINE = {
           note: 'La idea es hacer una activación escapular en retracción y depresión (cerrando y bajando) las escapulas, pero manteniendote colgado siempre - los codos quedan bloqueados y el movimiento es solo de escapulas!' }),
         X('d2', 'A7', 'Plancha alta', { sets: [S(2, '20"')], links: [lnk('Video', LINKS.planchaAlta)],
           note: 'Siguiendo los gestos practicados en A5- y A6, vamos a incorporarlo en una posicion completa - la idea sería poder dejar las escapulas abiertas (protracción) y la pelvis "cerrada" (en retroversión) - El resto de la técnica consiste en posicionar las manos a la altura de los hombros, mantener alineadas la cadera con los hombros, y apretar muy fuerte todos los musculos implicados (abdominales, gluteos, cuadriceps, triceps) para ejercer la mayor tensión posible. Este ejercicio bien hecho debería ejercer muchisima tensión.' }),
-        X('d2', 'B1', 'Dominadas negativas', { sets: [S(5, '1', '60-90"')], links: [lnk('Video', LINKS.dominadasNegativas)],
+        X('d2', 'B1', 'Dominadas negativas', { sets: [S(3, '2', '60-90"')], links: [lnk('Video', LINKS.dominadasNegativas)],
           note: '3-5" de bajada - marca arriba antes de subir, quedate 1 o 2" bien solida antes de empezar a bajar.' }),
-        X('d2', 'B2', 'Tirones en polea', { trackWeight: true, sets: [S(3, '8-10', '60-90"', '30')] }),
-        X('d2', 'B3', 'Remo con mancuerna a una mano', { trackWeight: true, sets: [S(2, '8-10', '60-90"', '16-18', true)] }),
+        X('d2', 'B2', 'Tirones en polea', { trackWeight: true, sets: [S(3, '8-10', '60-90"', '30 kg')] }),
+        // Cambió el ejercicio (antes: remo con mancuerna). id propio para no mezclar historiales.
+        X('d2', 'B3', 'Remo en máquina', { id: 'd2-b3-maquina', trackWeight: true, sets: [S(2, '8-10', '60-90"', '20 kg')] }),
         X('d2', 'C1', 'Press militar con mancuernas', { trackWeight: true, sets: [S(3, '8-10', '60-90"', '7 kg')] }),
-        X('d2', 'C2', 'Vuelos laterales', { trackWeight: true, sets: [S(3, '10-12', '60-90"', '5 o 6', true)] }),
-        X('d2', 'C3', 'Face pull', { trackWeight: true, sets: [S(2, '10-12', '60-90"', '15', true)] }),
-        X('d2', 'D1', 'Tríceps en polea descendente', { trackWeight: true, sets: [S(3, '10-12', '60-90"', '15 - 17,5', true)] }),
+        X('d2', 'C2', 'Vuelos laterales', { trackWeight: true, sets: [S(3, '10-12', '60-90"', '7 kg')] }),
+        X('d2', 'C3', 'Face pull', { trackWeight: true, sets: [S(2, '10-12', '60-90"', '15 kg', true)] }),
+        X('d2', 'D1', 'Tríceps en polea descendente', { trackWeight: true, sets: [S(3, '10-12', '60-90"', '15 - 17,5 kg', true)] }),
       ],
     },
     {
@@ -160,12 +165,12 @@ const GYM_ROUTINE = {
       exercises: [
         ...circuitoCadera('d3', null),
         X('d3', 'B1', 'Sentadilla', { trackWeight: true,
-          sets: [AP(1, '10', '60"', '20'), AP(1, '6', '60"', '30'), S(3, '6', '120-180"', '45')],
+          sets: [AP(1, '10', '60"', '20 kg'), AP(1, '6', '60"', '30 kg'), S(3, '6', '120-180"', '65 kg', true)],
           note: 'Empezamos a escalar las sentadillas para usar rangos mas bajos de repes y mas pesados - subi a 45 porque ya haces 10 con 40 para empzar a estimar -' }),
-        X('d3', 'B2', 'Sentadilla en smith enfoque cuádriceps', { trackWeight: true, sets: [S(3, '8-10', '90-120"', '10 kg x lado', true)] }),
-        X('d3', 'B3', 'Prensa', { trackWeight: true, sets: [S(3, '8-10', '90-120"', '60-70', true)] }),
-        X('d3', 'C1', 'Cuádriceps en máquina', { trackWeight: true, sets: [S(3, '10-12', '60-90"', '40-50', true)] }),
-        X('d3', 'C3', 'Aductores', { trackWeight: true, sets: [S(3, '12-15', '60-90"', '25-35', true)] }),
+        X('d3', 'B2', 'Sentadilla en smith enfoque cuádriceps', { trackWeight: true, sets: [S(3, '8-10', '90-120"', '17,5 kg x lado')] }),
+        X('d3', 'B3', 'Prensa', { trackWeight: true, sets: [S(3, '8-10', '90-120"', '72,5 kg')] }),
+        X('d3', 'C1', 'Cuádriceps en máquina', { trackWeight: true, sets: [S(3, '10-12', '60-90"', '50 kg')] }),
+        X('d3', 'C3', 'Aductores', { trackWeight: true, sets: [S(3, '12-15', '60-90"', '37,5 kg')] }),
         X('d3', 'D1', 'Elevaciones de rodilla', { trackWeight: true, sets: [S(3, '8-10', '60-90"', 'BW')], note: 'BW = peso corporal' }),
       ],
     },
@@ -174,12 +179,12 @@ const GYM_ROUTINE = {
       exercises: [
         ...circuitoCadera('d4', LINKS.buenosDias),
         X('d4', 'B1', 'Peso muerto convencional', { trackWeight: true,
-          sets: [AP(1, '5', '60"', '30'), AP(1, '3', '60"', '50'), S(3, '5', '120-180"', '60-70', true)] }),
-        X('d4', 'B2', 'Hip thrust', { trackWeight: true, sets: [S(4, '10-12', '120-180"', '90 kg')],
+          sets: [AP(1, '5', '60"', '30 kg'), AP(1, '3', '60"', '50 kg'), S(3, '5', '120-180"', '62,5 kg')] }),
+        X('d4', 'B2', 'Hip thrust', { trackWeight: true, sets: [S(4, '10-12', '120-180"', '100 kg', true)],
           note: 'Probamos con este peso para arrancar, puede ser 100 también si 90 es muy fácil. Y hacerlas lentas' }),
-        X('d4', 'C1', 'Isquios en máquina', { trackWeight: true, sets: [S(3, '10-12', '60-90"', '30-40', true)] }),
-        X('d4', 'C2', 'Abductores en máquina o en polea', { trackWeight: true, sets: [S(2, '10-12', '60-90"')] }),
-        X('d4', 'C3', 'Pata de glúteo en polea', { trackWeight: true, sets: [S(2, '15-20', '60-90"')] }),
+        X('d4', 'C1', 'Isquios en máquina', { trackWeight: true, sets: [S(3, '10-12', '60-90"', '35 kg')] }),
+        X('d4', 'C2', 'Abductores en polea', { trackWeight: true, sets: [S(2, '10-12', '60-90"', '', true)] }),
+        X('d4', 'C3', 'Pata de glúteo en polea', { trackWeight: true, sets: [S(2, '15-20', '60-90"', '20 kg')] }),
       ],
     },
   ],
@@ -222,6 +227,8 @@ const DEFAULT_STATE = {
     activeRoutineId: GYM_ROUTINE_ID,
     activeDay: 'd1',
     loads: {},
+    confirmed: {},
+    rev: GYM_ROUTINE_REV,
     current: {},
     history: [],
   },
@@ -231,8 +238,7 @@ const DEFAULT_STATE = {
 };
 
 const screens = document.querySelectorAll('.screen');
-const navButtons = document.querySelectorAll('.nav-button');
-const openSettings = document.getElementById('open-settings');
+const tabs = document.querySelectorAll('.tab');
 const garminManualWeight = document.getElementById('garmin-manual-weight');
 const garminManualVo2 = document.getElementById('garmin-manual-vo2');
 const garminManualResting = document.getElementById('garmin-manual-resting');
@@ -241,6 +247,7 @@ const garminManualThresholdPace = document.getElementById('garmin-manual-thresho
 const garminManualThresholdPower = document.getElementById('garmin-manual-threshold-power');
 const garminManualRelativePower = document.getElementById('garmin-manual-relative-power');
 
+const gymKicker = document.getElementById('gym-kicker');
 const gymOverview = document.getElementById('gym-overview');
 const gymDayTabs = document.getElementById('gym-day-tabs');
 const gymDay = document.getElementById('gym-day');
@@ -258,6 +265,20 @@ const runningHistory = document.getElementById('running-history');
 const runningGarminMini = document.getElementById('running-garmin-mini');
 const runningEditGarmin = document.getElementById('running-edit-garmin');
 const runningArchive = document.getElementById('running-archive');
+
+const restEl = document.getElementById('rest');
+const restLabel = document.getElementById('rest-label');
+const restRange = document.getElementById('rest-range');
+const restClock = document.getElementById('rest-clock');
+const restFill = document.getElementById('rest-fill');
+const restMark = document.getElementById('rest-mark');
+const restSkip = document.getElementById('rest-skip');
+const toastEl = document.getElementById('toast');
+const toastText = document.getElementById('toast-text');
+const toastAction = document.getElementById('toast-action');
+
+// Íconos (Lucide) en los lugares marcados con data-icon
+document.querySelectorAll('[data-icon]').forEach(el => { el.innerHTML = icon(el.dataset.icon); });
 
 function clone(obj) {
   return JSON.parse(JSON.stringify(obj));
@@ -293,11 +314,33 @@ function normalizeState(parsed) {
   if (!parsed.gym.loads || typeof parsed.gym.loads !== 'object') parsed.gym.loads = {};
   if (!parsed.gym.current || typeof parsed.gym.current !== 'object') parsed.gym.current = {};
   if (!Array.isArray(parsed.gym.history)) parsed.gym.history = [];
+  if (!parsed.gym.confirmed || typeof parsed.gym.confirmed !== 'object') parsed.gym.confirmed = {};
+  migrateGymLoads(parsed.gym);
 
   // Running: objetivo único semanal con registro libre de km
   if (!parsed.running || typeof parsed.running !== 'object') parsed.running = clone(DEFAULT_STATE.running);
   if (!Array.isArray(parsed.running.entries)) parsed.running.entries = [];
   return parsed;
+}
+
+/* Migración de cargas guardadas.
+   Antes, "Pendiente de confirmar" congelaba el peso de la planilla como si lo hubieras editado, y eso
+   tapaba los cambios del entrenador. Ahora una carga editada guarda sobre qué peso del entrenador se
+   editó (base): si Juan Pablo cambia ese peso, vale el suyo; si no, vale el tuyo. */
+function migrateGymLoads(gym) {
+  Object.keys(gym.loads).forEach(id => {
+    const ov = gym.loads[id];
+    if (!ov || typeof ov !== 'object' || typeof ov.weight !== 'string') { delete gym.loads[id]; return; }
+    if (ov.base !== undefined) return; // ya en formato nuevo
+    const prev = PREV_WEIGHTS[id];
+    if (prev !== undefined && String(ov.weight).trim() === String(prev).trim()) {
+      delete gym.loads[id]; // solo era una confirmación, no una edición
+      gym.confirmed[id] = String(prev).trim();
+    } else {
+      ov.base = prev === undefined ? '' : prev; // edición real: se conserva mientras el entrenador no cambie ese peso
+    }
+  });
+  gym.rev = GYM_ROUTINE_REV;
 }
 
 function loadState() {
@@ -415,30 +458,103 @@ function armConfirm(button, armedLabel, action) {
     action();
     return;
   }
-  const original = button.textContent;
+  const original = button.innerHTML;
   button.dataset.armed = '1';
   button.textContent = armedLabel;
   button.classList.add('armed');
   button._armTimer = setTimeout(() => {
     button.dataset.armed = '';
-    button.textContent = original;
+    button.innerHTML = original;
     button.classList.remove('armed');
   }, 3500);
 }
 
 /* ============================================================
-   Navegación
+   Navegación, aviso y temporizador de descanso
    ============================================================ */
 function updateNav(screenId) {
-  screens.forEach(screen => screen.classList.toggle('active', screen.id === screenId));
-  navButtons.forEach(button => button.classList.toggle('active', button.dataset.screen === screenId));
+  screens.forEach(screen => screen.classList.toggle('is-active', screen.id === screenId));
+  tabs.forEach(button => {
+    const on = button.dataset.screen === screenId;
+    button.classList.toggle('is-active', on);
+    if (on) button.setAttribute('aria-current', 'page'); else button.removeAttribute('aria-current');
+  });
+  window.scrollTo(0, 0);
 }
 
-navButtons.forEach(button => {
+tabs.forEach(button => {
   button.addEventListener('click', () => updateNav(button.dataset.screen));
 });
 
-openSettings.addEventListener('click', () => updateNav('screen-settings'));
+let toastTimer = null;
+let toastHandler = null;
+
+function showToast(text, actionLabel, handler, ms) {
+  clearTimeout(toastTimer);
+  toastText.textContent = text;
+  toastHandler = handler || null;
+  toastAction.hidden = !actionLabel;
+  toastAction.textContent = actionLabel || '';
+  toastEl.hidden = false;
+  if (ms !== 0) toastTimer = setTimeout(() => { toastEl.hidden = true; }, ms || 3500);
+}
+
+toastAction.addEventListener('click', () => {
+  const fn = toastHandler;
+  toastEl.hidden = true;
+  if (fn) fn();
+});
+
+/* Descanso: "120-180"" → entre 2:00 y 3:00; "60"" → 1:00. Cuenta hacia arriba desde que tildás la serie. */
+function parseRest(str) {
+  const m = String(str || '').match(/(\d+)(?:\s*-\s*(\d+))?\s*"/);
+  if (!m) return null;
+  const min = parseInt(m[1], 10);
+  const max = m[2] ? parseInt(m[2], 10) : min;
+  return { min: Math.min(min, max), max: Math.max(min, max) };
+}
+
+function fmtClock(sec) {
+  return `${Math.floor(sec / 60)}:${pad2(sec % 60)}`;
+}
+
+let rest = null;
+
+function startRest(label, range) {
+  rest = { start: Date.now(), min: range.min, max: range.max, ready: false };
+  restLabel.textContent = label;
+  restRange.textContent = range.min === range.max ? `Descanso ${fmtClock(range.min)}` : `Descanso ${fmtClock(range.min)} a ${fmtClock(range.max)}`;
+  restEl.hidden = false;
+  document.body.classList.add('has-rest');
+  tickRest();
+}
+
+function stopRest() {
+  rest = null;
+  restEl.hidden = true;
+  document.body.classList.remove('has-rest');
+}
+
+function tickRest() {
+  if (!rest) return;
+  const sec = Math.floor((Date.now() - rest.start) / 1000);
+  const range = rest.max > rest.min;
+  const barMax = rest.max;
+  const overAt = range ? rest.max : rest.min + 30;
+  restClock.textContent = fmtClock(sec);
+  restFill.style.width = `${Math.min(100, (sec / barMax) * 100)}%`;
+  restMark.hidden = !range;
+  restMark.style.left = `${(rest.min / barMax) * 100}%`;
+  restEl.classList.toggle('is-ready', sec >= rest.min && sec <= overAt);
+  restEl.classList.toggle('is-over', sec > overAt);
+  if (sec >= rest.min && !rest.ready) {
+    rest.ready = true;
+    try { if (navigator.vibrate) navigator.vibrate(200); } catch (err) { /* sin vibración */ }
+  }
+}
+
+setInterval(tickRest, 500);
+restSkip.addEventListener('click', stopRest);
 
 /* ============================================================
    Historial anterior (Agosto): solo lectura
@@ -542,18 +658,16 @@ function renderRunningGoal(week) {
   if (km > RUNNING_WEEKLY_GOAL_KM) message = `Objetivo cumplido. Vas ${formatKm(km - RUNNING_WEEKLY_GOAL_KM)} km por encima de los ${RUNNING_WEEKLY_GOAL_KM}.`;
   else if (done) message = 'Objetivo cumplido.';
   else message = `Te faltan ${formatKm(left)} km para llegar a los ${RUNNING_WEEKLY_GOAL_KM} km.`;
+  runningGoal.classList.toggle('is-done', done);
   runningGoal.innerHTML = `
-    <p class="eyebrow">Objetivo semanal</p>
-    <p class="goal-big">${RUNNING_WEEKLY_GOAL_KM}<span> km</span></p>
-    <div class="mini-stats">
-      <div class="stat-card"><h3>Acumulados</h3><p>${formatKm(km)} km</p></div>
-      <div class="stat-card"><h3>Restantes</h3><p>${formatKm(left)} km</p></div>
-      <div class="stat-card"><h3>Cumplimiento</h3><p>${pct}%</p></div>
+    <div class="goal-top">
+      <p class="goal-big">${formatKm(km)}<small>/ ${RUNNING_WEEKLY_GOAL_KM} km</small></p>
+      <p class="goal-pct">${pct}%</p>
     </div>
-    <div class="progress-bar big" role="progressbar" aria-label="Progreso semanal de running" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(100, pct)}">
-      <div class="progress-fill${done ? ' is-complete' : ''}" style="width:${fill}%"></div>
+    <div class="bar" role="progressbar" aria-label="Progreso semanal de running" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(100, pct)}">
+      <i class="${done ? 'is-complete' : ''}" style="width:${fill}%"></i>
     </div>
-    <p class="description">${message}</p>`;
+    <p class="goal-msg">${message}</p>`;
 }
 
 function renderRunningDays(monday, week) {
@@ -568,7 +682,7 @@ function renderRunningDays(monday, week) {
       <span>${DAYS_SHORT[i]}</span><strong>${km > 0 ? formatKm(km) : '–'}</strong><small>${d.getDate()}/${d.getMonth() + 1}</small>
     </div>`;
   }).join('');
-  runningDays.innerHTML = `<p class="eyebrow">Esta semana (lunes a domingo)</p><div class="day-grid">${cells}</div>`;
+  runningDays.innerHTML = `<div class="day-grid">${cells}</div>`;
 }
 
 function renderRunningHistory(weeks, currentKey) {
@@ -593,10 +707,10 @@ function renderRunningHistory(weeks, currentKey) {
         const d = parseISODate(e.date);
         const action = e.legacy
           ? '<span class="chip">Agosto</span>'
-          : `<button type="button" class="entry-delete" data-run-delete="${esc(e.id)}" aria-label="Eliminar registro del ${esc(e.date)}">✕</button>`;
+          : `<button type="button" class="entry-delete" data-run-delete="${esc(e.id)}" aria-label="Eliminar registro del ${esc(e.date)}">${icon('trash-2')}</button>`;
         return `<div class="entry-row"><span>${dayShort(d)} ${fmtDM(d)}</span><strong>${formatKm(e.km)} km</strong>${action}</div>`;
       }).join('')
-      : '<p class="empty-state">Sin registros esta semana.</p>';
+      : '<p class="empty">Sin registros esta semana.</p>';
     return `
       <details class="week-row" data-week="${key}"${runningOpenWeeks.has(key) ? ' open' : ''}>
         <summary>
@@ -604,27 +718,27 @@ function renderRunningHistory(weeks, currentKey) {
             <span class="week-row-label">${weekLabel(monday)}${key === currentKey ? ' · actual' : ''}</span>
             <span class="week-row-km">${formatKm(week.km)} km · ${pct}%</span>
           </div>
-          <div class="progress-bar small"><div class="progress-fill${week.km >= RUNNING_WEEKLY_GOAL_KM ? ' is-complete' : ''}" style="width:${fill}%"></div></div>
+          <div class="bar small"><i class="${week.km >= RUNNING_WEEKLY_GOAL_KM ? 'is-complete' : ''}" style="width:${fill}%"></i></div>
         </summary>
         <div class="week-row-body">${entriesHTML}</div>
       </details>`;
   }).join('');
 
-  runningHistory.innerHTML = `<p class="eyebrow">Historial semanal de km</p><div class="week-list">${html}</div>`;
+  runningHistory.innerHTML = `<div class="week-list">${html}</div>`;
 }
 
 function renderRunningArchive() {
   const items = legacyEntries().filter(item => item.kind === 'running');
   if (!items.length) {
-    runningArchive.classList.add('hide');
+    runningArchive.hidden = true;
     runningArchive.innerHTML = '';
     return;
   }
-  runningArchive.classList.remove('hide');
+  runningArchive.hidden = false;
   const wasOpen = runningArchive.open;
   runningArchive.innerHTML = `
     <summary>Sesiones de running de Agosto (plan anterior)</summary>
-    <p class="description">Historial conservado. Sus kilómetros ya cuentan en el historial semanal.</p>
+    <p class="hint">Historial conservado. Sus kilómetros ya cuentan en el historial semanal.</p>
     <div class="legacy-list">${items.map(legacyItemHTML).join('')}</div>`;
   runningArchive.open = wasOpen;
 }
@@ -635,7 +749,7 @@ function renderRunning() {
   const currentKey = toISODate(monday);
   const weeks = computeWeeks();
   const week = weeks.get(currentKey) || { key: currentKey, km: 0, entries: [] };
-  runningRange.textContent = weekLabel(monday);
+  runningRange.textContent = `Semana ${weekLabel(monday)}`;
   renderRunningGoal(week);
   renderRunningDays(monday, week);
   renderRunningHistory(weeks, currentKey);
@@ -652,18 +766,19 @@ runningForm.addEventListener('submit', evt => {
   const km = parseKm(runningKm.value);
   const showError = msg => {
     runningError.textContent = msg;
-    runningError.classList.remove('hide');
+    runningError.hidden = false;
   };
   if (!isValidISODate(date)) return showError('Elegí un día válido.');
   if (date > toISODate(new Date())) return showError('El día no puede ser futuro.');
   if (Number.isNaN(km) || km <= 0) return showError('Ingresá los kilómetros (por ejemplo 5,2).');
   if (km > 300) return showError('Ese valor de kilómetros parece incorrecto.');
-  runningError.classList.add('hide');
+  runningError.hidden = true;
   state.running.entries.push({ id: uid(), date, km });
   saveState();
   runningKm.value = '';
   runningOpenWeeks.add(toISODate(mondayOf(parseISODate(date))));
   renderRunning();
+  showToast(`Agregaste ${formatKm(km)} km`);
 });
 
 runningHistory.addEventListener('click', evt => {
@@ -685,16 +800,16 @@ runningHistory.addEventListener('toggle', evt => {
   else runningOpenWeeks.delete(details.dataset.week);
 }, true);
 
-/* Referencia Garmin (se conserva, ahora dentro de Running) */
+/* Referencia Garmin */
 function renderRunningGarmin() {
   const g = state.garminManual;
-  runningGarminMini.innerHTML = `
-    <div class="stat-card"><h3>VO2 máx</h3><p>${esc(g.vo2max)}</p></div>
-    <div class="stat-card"><h3>FC reposo</h3><p>${esc(g.restingHr)} ppm</p></div>
-    <div class="stat-card"><h3>Umbral</h3><p>${esc(g.threshold)} ppm</p></div>
-    <div class="stat-card"><h3>Ritmo umbral</h3><p>${esc(g.thresholdPace)}/km</p></div>
-    <div class="stat-card"><h3>Potencia umbral</h3><p>${esc(g.thresholdPower)} W</p></div>
-  `;
+  const stat = (label, value) => `<div class="stat"><span>${label}</span><strong>${esc(value)}</strong></div>`;
+  runningGarminMini.innerHTML =
+    stat('VO2 máx', g.vo2max) +
+    stat('FC reposo', `${g.restingHr} ppm`) +
+    stat('Umbral', `${g.threshold} ppm`) +
+    stat('Ritmo umbral', `${g.thresholdPace}/km`) +
+    stat('Potencia umbral', `${g.thresholdPower} W`);
 }
 
 runningEditGarmin.addEventListener('click', () => updateNav('screen-settings'));
@@ -766,10 +881,17 @@ function allSetsOf(ex, sess) {
   });
 }
 
+// Compara pesos ignorando mayúsculas, espacios y la unidad ("50" == "50 kg").
+function normW(v) {
+  return String(v == null ? '' : v).trim().toLowerCase().replace(/\s*kg\b/g, '').replace(/\s+/g, ' ');
+}
+
 function effectivePlan(set) {
   const ov = state.gym.loads[set.id];
-  if (ov) return { text: ov.weight, pending: false };
-  return { text: set.weight, pending: !!set.est };
+  // Tu edición vale mientras el entrenador no haya cambiado el peso sobre el que editaste.
+  if (ov && normW(ov.base) === normW(set.weight)) return { text: ov.weight, pending: false };
+  const confirmed = normW(state.gym.confirmed[set.id]) === normW(set.weight) && normW(set.weight) !== '';
+  return { text: set.weight, pending: !!set.est && !confirmed };
 }
 
 function isTimed(reps) {
@@ -783,7 +905,8 @@ function sessionCounts(day) {
   day.exercises.forEach(ex => {
     allSetsOf(ex, sess).forEach(s => {
       total += 1;
-      if (sess && sess.sets[s.id] && sess.sets[s.id].done) done += 1;
+      const st = sess && sess.sets[s.id];
+      if (st && (st.done || String(st.weight || '').trim() !== '' || String(st.reps || '').trim() !== '')) done += 1;
     });
   });
   return { done, total };
@@ -824,6 +947,23 @@ function fmtShortDate(iso) {
   return fmtDM(parseISODate(iso));
 }
 
+const BLOCK_NAMES = { A: 'Activación', B: 'Principal', C: 'Complementarios', D: 'Final' };
+
+function dayParts(day) {
+  const [n, ...rest] = day.title.split(' - ');
+  return { n, name: rest.join(' - ') };
+}
+
+function exCounts(ex, sess) {
+  const sets = allSetsOf(ex, sess);
+  let done = 0;
+  sets.forEach(s => {
+    const st = sess && sess.sets[s.id];
+    if (st && (st.done || String(st.weight || '').trim() !== '' || String(st.reps || '').trim() !== '')) done += 1;
+  });
+  return { done, total: sets.length };
+}
+
 function exerciseMetaChips(ex) {
   const ap = ex.baseSets.filter(s => s.kind === 'aproximacion').length;
   const ef = ex.baseSets.filter(s => s.kind === 'efectiva');
@@ -839,12 +979,16 @@ function exerciseMetaChips(ex) {
   return chips.map(c => `<span class="chip">${esc(c)}</span>`).join('');
 }
 
+function pendingPillHTML(setId) {
+  return ` <button type="button" class="pending-pill" data-gaction="confirm-load" data-set-id="${esc(setId)}" title="Tocá para confirmar esta carga">Sin confirmar</button>`;
+}
+
 function loadCellHTML(set) {
   const plan = effectivePlan(set);
   const value = plan.text || '';
   return `
     <div class="gset-field">
-      <label>Carga${plan.pending ? ` <button type="button" class="pending-pill" data-gaction="confirm-load" data-set-id="${esc(set.id)}" title="Tocá para confirmar esta carga">Pendiente de confirmar</button>` : ''}</label>
+      <label>Plan${plan.pending ? pendingPillHTML(set.id) : ''}</label>
       <input type="text" inputmode="decimal" autocomplete="off" data-gset="plan" data-set-id="${esc(set.id)}" value="${esc(value)}" placeholder="—" aria-label="Carga planificada de ${esc(set.label)}" />
     </div>`;
 }
@@ -855,12 +999,11 @@ function setRowHTML(ex, set, sess) {
   const planParts = [];
   if (set.reps) planParts.push(/^[\d-]+$/.test(set.reps) ? `${set.reps} reps` : set.reps);
   if (set.rest) planParts.push(`descanso ${set.rest}`);
-  const kindText = set.kind === 'aproximacion' ? 'Aproximación' : 'Efectiva';
   let fields = '';
   if (!ex.checkOnly) {
     const repsField = `
       <div class="gset-field">
-        <label>${timed ? 'Tiempo real' : 'Reps reales'}</label>
+        <label>${timed ? 'Tiempo' : 'Reps'}</label>
         <input type="text" inputmode="${timed ? 'text' : 'numeric'}" autocomplete="off" data-gset="reps" data-set-id="${esc(set.id)}" value="${esc(st.reps || '')}" placeholder="${esc(set.reps || '')}" aria-label="${timed ? 'Tiempo real' : 'Repeticiones reales'} de ${esc(set.label)}" />
       </div>`;
     if (ex.trackWeight) {
@@ -881,9 +1024,10 @@ function setRowHTML(ex, set, sess) {
       <div class="gset-top">
         <label class="gset-check">
           <input type="checkbox" data-gset="done" data-set-id="${esc(set.id)}"${st.done ? ' checked' : ''} aria-label="Marcar ${esc(set.label)} como completada" />
+          <span class="gset-box">${icon('check')}</span>
           <span class="gset-name">${esc(set.label)}</span>
         </label>
-        <span class="kind-badge ${set.kind === 'aproximacion' ? 'kind-approach' : 'kind-effective'}">${kindText}</span>
+        ${set.kind === 'aproximacion' ? '<span class="kind-badge kind-approach">Aprox.</span>' : ''}
         <span class="gset-plan">${esc(planParts.join(' · '))}</span>
       </div>
       ${fields}
@@ -894,11 +1038,12 @@ function exerciseHTML(ex) {
   const day = getGymDay(ex.dayId);
   const sess = getSession(day.id, false);
   const sets = allSetsOf(ex, sess);
-  const links = ex.links.map(l => `<a class="gx-link" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">▶ ${esc(l.label)}</a>`).join('');
+  const counts = exCounts(ex, sess);
+  const links = ex.links.map(l => `<a class="gx-link" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${icon('play')}${esc(l.label)}</a>`).join('');
   let noteHTML = '';
   if (ex.note) {
     noteHTML = ex.note.length > 150
-      ? `<details class="gx-note-wrap"><summary>Aclaración del entrenador</summary><p class="gx-note">${esc(ex.note)}</p></details>`
+      ? `<details class="gx-note-wrap"><summary>${icon('info')} Aclaración del entrenador</summary><p class="gx-note">${esc(ex.note)}</p></details>`
       : `<p class="gx-note"><strong>Aclaración:</strong> ${esc(ex.note)}</p>`;
   }
   const prog = exerciseProgress(ex.id);
@@ -908,36 +1053,69 @@ function exerciseHTML(ex) {
   const extraCount = sess && sess.extra[ex.id] ? sess.extra[ex.id] : 0;
   const approachControls = ex.allowApproach ? `
     <div class="gx-approach-actions">
-      <button type="button" class="ghost small" data-gaction="add-approach" data-ex="${esc(ex.id)}">+ Serie de aproximación</button>
-      ${extraCount ? `<button type="button" class="ghost small" data-gaction="remove-approach" data-ex="${esc(ex.id)}">− Quitar última</button>` : ''}
+      <button type="button" class="btn btn-ghost btn-small" data-gaction="add-approach" data-ex="${esc(ex.id)}">${icon('plus')} Serie de aproximación</button>
+      ${extraCount ? `<button type="button" class="btn btn-ghost btn-small" data-gaction="remove-approach" data-ex="${esc(ex.id)}">Quitar última</button>` : ''}
     </div>` : '';
   return `
-    <div class="gx" data-ex="${esc(ex.id)}">
+    <article class="gx card${counts.done === counts.total ? ' is-complete' : ''}" data-ex="${esc(ex.id)}">
       <div class="gx-head">
-        <div class="gx-title"><span class="gx-code">${esc(ex.code)}</span><h4>${esc(ex.name)}</h4></div>
-        ${links ? `<div class="gx-links">${links}</div>` : ''}
+        <span class="gx-code">${esc(ex.code)}</span>
+        <div class="gx-title"><h4>${esc(ex.name)}</h4></div>
+        <span class="gx-count" data-ex-count>${counts.done}/${counts.total}</span>
       </div>
       <div class="gx-meta">${exerciseMetaChips(ex)}</div>
+      ${links ? `<div class="gx-links">${links}</div>` : ''}
       ${noteHTML}
       ${progHTML}
       <div class="gx-sets">${sets.map(s => setRowHTML(ex, s, sess)).join('')}</div>
       ${approachControls}
-    </div>`;
+    </article>`;
+}
+
+const RING_C = 169.65;
+function ringHTML(pct) {
+  return `<div class="ring${pct >= 100 ? ' is-full' : ''}" data-ring role="img" aria-label="${pct}% del día completado">
+    <svg viewBox="0 0 64 64" aria-hidden="true"><circle class="track" cx="32" cy="32" r="27"/><circle class="fill" cx="32" cy="32" r="27" stroke-dasharray="${RING_C}" stroke-dashoffset="${(RING_C * (1 - pct / 100)).toFixed(2)}"/></svg>
+    <b>${pct}%</b>
+  </div>`;
+}
+
+function doneThisWeek(dayId) {
+  const start = toISODate(mondayOf(new Date()));
+  const end = toISODate(addDays(mondayOf(new Date()), 6));
+  return state.gym.history.some(h => h.dayId === dayId && h.date >= start && h.date <= end);
+}
+
+function suggestedDayId() {
+  const next = GYM_ROUTINE.days.find(d => !doneThisWeek(d.id));
+  return next ? next.id : null;
+}
+
+function chipLabel(day) {
+  const counts = sessionCounts(day);
+  return { counts, pct: counts.total ? Math.round((counts.done / counts.total) * 100) : 0 };
 }
 
 function renderGymTabs() {
+  const suggested = suggestedDayId();
   gymDayTabs.innerHTML = '';
   GYM_ROUTINE.days.forEach(day => {
-    const counts = sessionCounts(day);
+    const { pct } = chipLabel(day);
+    const parts = dayParts(day);
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'week-tab-btn' + (state.gym.activeDay === day.id ? ' active' : '');
+    btn.setAttribute('role', 'tab');
+    btn.setAttribute('aria-selected', state.gym.activeDay === day.id ? 'true' : 'false');
+    btn.className = 'daychip'
+      + (state.gym.activeDay === day.id ? ' is-active' : '')
+      + (doneThisWeek(day.id) ? ' is-done' : '')
+      + (suggested === day.id ? ' is-suggested' : '');
     btn.dataset.day = day.id;
-    const pct = counts.total ? Math.round((counts.done / counts.total) * 100) : 0;
-    btn.textContent = day.title.replace(' - ', ' · ') + (counts.done ? ` (${pct}%)` : '');
+    btn.innerHTML = `<span class="dn">${esc(parts.n)}</span><span class="dt">${esc(parts.name)}</span><i class="dp" style="width:${pct}%"></i>`;
     btn.addEventListener('click', () => {
       state.gym.activeDay = day.id;
       saveState();
+      stopRest();
       renderGymTabs();
       renderGymDay();
     });
@@ -947,47 +1125,72 @@ function renderGymTabs() {
 
 function renderGymDay() {
   const day = getGymDay(state.gym.activeDay);
-  const counts = sessionCounts(day);
-  const pct = counts.total ? Math.round((counts.done / counts.total) * 100) : 0;
+  const { pct } = chipLabel(day);
+  const parts = dayParts(day);
   const todayIso = toISODate(new Date());
+  const counts = sessionCounts(day);
+
+  const groups = [];
+  day.exercises.forEach(ex => {
+    const letter = ex.code.charAt(0);
+    let g = groups.find(x => x.letter === letter);
+    if (!g) { g = { letter, items: [] }; groups.push(g); }
+    g.items.push(ex);
+  });
+
   gymDay.innerHTML = `
-    <div class="card gym-day-card" data-day="${esc(day.id)}">
-      <div class="detail-header">
-        <div><p class="eyebrow">Sesión actual</p><h3>${esc(day.title)}</h3></div>
-        <span class="chip" data-gym-count>${counts.done}/${counts.total} series</span>
+    <div class="day-stack" data-day="${esc(day.id)}">
+      <div class="day-head">
+        <div><h3>${esc(parts.n)}</h3><p>${esc(parts.name)} · ${counts.total} series</p></div>
+        ${ringHTML(pct)}
       </div>
-      <div class="progress-line"><div class="progress-bar"><div class="progress-fill" data-gym-fill style="width:${pct}%"></div></div></div>
-      <div class="gx-list">${day.exercises.map(exerciseHTML).join('')}</div>
-      <div class="gym-finish">
-        <div class="gym-finish-date">
+      ${groups.map(g => `
+        <section class="grp" aria-label="Bloque ${g.letter}">
+          <div class="grp-head"><span class="grp-letter">${g.letter}</span><span class="grp-name">${esc(BLOCK_NAMES[g.letter] || '')}</span></div>
+          ${g.items.map(exerciseHTML).join('')}
+        </section>`).join('')}
+      <section class="card finish">
+        <div class="field">
           <label for="gym-finish-date">Fecha del entrenamiento</label>
           <input id="gym-finish-date" type="date" value="${todayIso}" max="${todayIso}" />
         </div>
-        <div class="gym-finish-actions">
-          <button type="button" class="primary" data-gaction="finish"${counts.done ? '' : ' disabled'}>Finalizar entrenamiento</button>
-          <button type="button" class="secondary" data-gaction="discard"${counts.done || state.gym.current[day.id] ? '' : ' disabled'}>Descartar sesión</button>
+        <div class="finish-actions">
+          <button type="button" class="btn btn-primary btn-block" data-gaction="finish"${counts.done ? '' : ' disabled'}>${icon('circle-check')} Finalizar entrenamiento</button>
+          <button type="button" class="btn btn-ghost btn-block" data-gaction="discard"${counts.done || state.gym.current[day.id] ? '' : ' disabled'}>Descartar sesión</button>
         </div>
-      </div>
+      </section>
     </div>`;
 }
 
 function updateDayProgress(dayId) {
   const day = getGymDay(dayId);
+  const sess = getSession(dayId, false);
   const counts = sessionCounts(day);
   const pct = counts.total ? Math.round((counts.done / counts.total) * 100) : 0;
-  const card = gymDay.querySelector('.gym-day-card');
-  if (card && card.dataset.day === dayId) {
-    const count = card.querySelector('[data-gym-count]');
-    const fill = card.querySelector('[data-gym-fill]');
-    const finish = card.querySelector('[data-gaction="finish"]');
-    const discard = card.querySelector('[data-gaction="discard"]');
-    if (count) count.textContent = `${counts.done}/${counts.total} series`;
-    if (fill) fill.style.width = `${pct}%`;
+  const stack = gymDay.querySelector('.day-stack');
+  if (stack && stack.dataset.day === dayId) {
+    const ring = stack.querySelector('[data-ring]');
+    if (ring) {
+      ring.classList.toggle('is-full', pct >= 100);
+      ring.querySelector('.fill').setAttribute('stroke-dashoffset', (RING_C * (1 - pct / 100)).toFixed(2));
+      ring.querySelector('b').textContent = `${pct}%`;
+      ring.setAttribute('aria-label', `${pct}% del día completado`);
+    }
+    const finish = stack.querySelector('[data-gaction="finish"]');
+    const discard = stack.querySelector('[data-gaction="discard"]');
     if (finish) finish.disabled = counts.done === 0;
     if (discard) discard.disabled = !(counts.done || state.gym.current[dayId]);
+    stack.querySelectorAll('.gx').forEach(el => {
+      const ex = EX_INDEX[el.dataset.ex];
+      if (!ex) return;
+      const c = exCounts(ex, sess);
+      const label = el.querySelector('[data-ex-count]');
+      if (label) label.textContent = `${c.done}/${c.total}`;
+      el.classList.toggle('is-complete', c.done === c.total);
+    });
   }
   const tab = gymDayTabs.querySelector(`[data-day="${dayId}"]`);
-  if (tab) tab.textContent = day.title.replace(' - ', ' · ') + (counts.done ? ` (${pct}%)` : '');
+  if (tab) tab.querySelector('.dp').style.width = `${pct}%`;
 }
 
 function rerenderExercise(exId) {
@@ -1002,6 +1205,15 @@ function rerenderExercise(exId) {
 
 function exIdOfSet(setId) {
   return String(setId).split(':')[0];
+}
+
+function setOf(ex, setId) {
+  return allSetsOf(ex, getSession(ex.dayId, false)).find(s => s.id === setId);
+}
+
+function maybeStartRest(ex, set) {
+  const range = set && parseRest(set.rest);
+  if (range) startRest(`${ex.code} ${ex.name} · ${set.label}`, range);
 }
 
 gymDay.addEventListener('change', evt => {
@@ -1020,20 +1232,20 @@ gymDay.addEventListener('change', evt => {
     if (row) row.classList.toggle('is-done', t.checked);
     saveState();
     updateDayProgress(ex.dayId);
+    if (t.checked) maybeStartRest(ex, setOf(ex, setId));
   } else if (kind === 'plan') {
     const value = t.value.trim();
+    const set = setOf(ex, setId);
     if (value === '') delete state.gym.loads[setId];
-    else state.gym.loads[setId] = { weight: value, confirmed: true };
+    else if (set && normW(value) === normW(set.weight)) { delete state.gym.loads[setId]; state.gym.confirmed[setId] = normW(value); }
+    else state.gym.loads[setId] = { weight: value, base: set ? set.weight : '' };
     saveState();
-    const set = allSetsOf(ex, getSession(ex.dayId, false)).find(s => s.id === setId);
     const field = t.closest('.gset-field');
     if (set && field) {
       const plan = effectivePlan(set);
       if (value === '') t.value = plan.text || '';
       const label = field.querySelector('label');
-      if (label) {
-        label.innerHTML = `Carga${plan.pending ? ` <button type="button" class="pending-pill" data-gaction="confirm-load" data-set-id="${esc(setId)}" title="Tocá para confirmar esta carga">Pendiente de confirmar</button>` : ''}`;
-      }
+      if (label) label.innerHTML = `Plan${plan.pending ? pendingPillHTML(setId) : ''}`;
     }
   }
 });
@@ -1047,7 +1259,22 @@ gymDay.addEventListener('input', evt => {
   if (!ex) return;
   const sess = getSession(ex.dayId, true);
   if (!sess.sets[setId]) sess.sets[setId] = {};
-  sess.sets[setId][kind] = t.value;
+  const st = sess.sets[setId];
+  const hadData = String(st.weight || '').trim() !== '' || String(st.reps || '').trim() !== '';
+  st[kind] = t.value;
+  // Si empezás a cargar peso o repeticiones en una serie, se tilda sola (antes se perdía al finalizar si no la tildabas).
+  if (!hadData && t.value.trim() !== '' && !st.done) {
+    st.done = true;
+    const row = t.closest('.gset');
+    if (row) {
+      row.classList.add('is-done');
+      const box = row.querySelector('input[data-gset="done"]');
+      if (box) box.checked = true;
+    }
+    updateDayProgress(ex.dayId);
+    // El descanso arranca al anotar las repeticiones (se anotan al terminar la serie), no al poner el peso.
+    if (kind === 'reps') maybeStartRest(ex, setOf(ex, setId));
+  }
   saveState();
 });
 
@@ -1062,10 +1289,9 @@ gymDay.addEventListener('click', evt => {
     const ex = EX_INDEX[exIdOfSet(setId)];
     const set = ex && ex.baseSets.find(s => s.id === setId);
     if (!set) return;
-    state.gym.loads[setId] = { weight: set.weight, confirmed: true };
+    state.gym.confirmed[setId] = normW(set.weight);
     saveState();
-    const label = btn.closest('label');
-    if (label) label.querySelector('.pending-pill').remove();
+    btn.remove();
   } else if (action === 'add-approach') {
     const ex = EX_INDEX[btn.dataset.ex];
     const sess = getSession(ex.dayId, true);
@@ -1088,6 +1314,7 @@ gymDay.addEventListener('click', evt => {
     armConfirm(btn, '¿Seguro? Se borra la sesión', () => {
       delete state.gym.current[day.id];
       saveState();
+      stopRest();
       renderGymAll();
     });
   }
@@ -1110,7 +1337,10 @@ function finishSession(dayId) {
     const sets = allSetsOf(ex, sess);
     total += sets.length;
     const recorded = sets
-      .filter(s => sess.sets[s.id] && sess.sets[s.id].done)
+      .filter(s => {
+        const st = sess.sets[s.id];
+        return st && (st.done || String(st.weight || '').trim() !== '' || String(st.reps || '').trim() !== '');
+      })
       .map(s => {
         const st = sess.sets[s.id];
         return { kind: s.kind, plan: effectivePlan(s).text || '', done: true, weight: String(st.weight || '').trim(), reps: String(st.reps || '').trim() };
@@ -1139,8 +1369,14 @@ function finishSession(dayId) {
   });
   state.gym.history.sort((a, b) => (a.date === b.date ? (a.finishedAt < b.finishedAt ? 1 : -1) : (a.date < b.date ? 1 : -1)));
   delete state.gym.current[dayId];
+  // Después de terminar, queda seleccionado el próximo día pendiente de la semana
+  const next = suggestedDayId();
+  if (next) state.gym.activeDay = next;
   saveState();
+  stopRest();
   renderGymAll();
+  window.scrollTo(0, 0);
+  showToast(`${dayParts(day).n} guardado: ${done} series`);
 }
 
 function renderGymOverview() {
@@ -1151,28 +1387,31 @@ function renderGymOverview() {
   const sets = weekItems.reduce((sum, h) => sum + (h.setsDone || 0), 0);
   const volume = weekItems.reduce((sum, h) => sum + (h.volume || 0), 0);
   const total = GYM_ROUTINE.days.length;
-  const pct = Math.min(100, Math.round((weekItems.length / total) * 100));
+  const doneDays = GYM_ROUTINE.days.filter(d => doneThisWeek(d.id)).length;
+  const next = suggestedDayId();
+  const nextDay = next ? getGymDay(next) : null;
+  const title = nextDay ? `Te toca: ${dayParts(nextDay).n}` : 'Semana completa';
+  const sub = nextDay ? `${dayParts(nextDay).name} · semana del ${weekLabel(monday)}` : `Cerraste los ${total} días · semana del ${weekLabel(monday)}`;
+  const pips = GYM_ROUTINE.days.map(d => `<span class="pip${doneThisWeek(d.id) ? ' on' : ''}"></span>`).join('');
   gymOverview.innerHTML = `
-    <div class="detail-header">
-      <div><p class="eyebrow">Rutina activa</p><h3>${esc(GYM_ROUTINE.name)}</h3></div>
-      <span class="chip">${total} días</span>
-    </div>
-    <p class="description">${esc(GYM_ROUTINE.source)}. Marcá cada serie, anotá peso y repeticiones reales y finalizá el entrenamiento para guardarlo en el historial. Las cargas estimadas figuran como pendientes de confirmar.</p>
-    <div class="progress-line gym-week-line">
-      <p>Esta semana: ${weekItems.length}/${total} entrenamientos</p>
-      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-    </div>
-    <div class="mini-stats">
-      <div class="stat-card"><h3>Entrenos (semana)</h3><p>${weekItems.length}</p></div>
-      <div class="stat-card"><h3>Series (semana)</h3><p>${sets}</p></div>
-      <div class="stat-card"><h3>Volumen (semana)</h3><p>${formatNumber(volume)} kg</p></div>
+    <div class="week-hero card">
+      <div class="week-hero-top">
+        <div><h3>${esc(title)}</h3><p class="src">${esc(sub)}</p></div>
+        <div class="pips" role="img" aria-label="${doneDays} de ${total} entrenamientos esta semana">${pips}</div>
+      </div>
+      <div class="stats">
+        <div class="stat"><span>Entrenos</span><strong>${doneDays}/${total}</strong></div>
+        <div class="stat"><span>Series</span><strong>${sets}</strong></div>
+        <div class="stat"><span>Volumen</span><strong>${formatNumber(volume)}<small> kg</small></strong></div>
+      </div>
+      <p class="hint">${esc(GYM_ROUTINE.source)}. “Sin confirmar” marca las cargas que en la planilla tienen “?”.</p>
     </div>`;
 }
 
 function renderGymHistory() {
   const items = state.gym.history;
   if (!items.length) {
-    gymHistory.innerHTML = `<p class="eyebrow">Historial de entrenamientos</p><p class="empty-state">Todavía no finalizaste ningún entrenamiento de esta rutina.</p>`;
+    gymHistory.innerHTML = '<p class="empty">Todavía no finalizaste ningún entrenamiento de esta rutina.</p>';
     return;
   }
   const rows = items.slice(0, 20).map(h => {
@@ -1181,20 +1420,18 @@ function renderGymHistory() {
         <span>${e.sets.map(s => `${s.kind === 'aproximacion' ? '<em>aprox.</em> ' : ''}${esc(fmtRecorded(s))}`).join(' · ')}</span>
       </div>`).join('');
     return `
-      <details class="week-row hist-row">
+      <details class="hrow">
         <summary>
-          <div class="week-row-head">
-            <span class="week-row-label">${esc(fmtShortDate(h.date))} · ${esc(h.dayTitle)}</span>
-            <span class="week-row-km">${h.setsDone}/${h.setsTotal} series${h.volume ? ` · ${formatNumber(h.volume)} kg` : ''}</span>
-          </div>
+          <div class="h-main"><p class="h-day">${esc(h.dayTitle)}</p><p class="h-date">${esc(fmtShortDate(h.date))}</p></div>
+          <p class="h-meta">${h.setsDone}/${h.setsTotal} series${h.volume ? `<br>${formatNumber(h.volume)} kg` : ''}</p>
         </summary>
-        <div class="week-row-body">
+        <div class="hrow-body">
           ${exHTML}
-          <button type="button" class="entry-delete wide" data-hist-delete="${esc(h.id)}">Eliminar entrenamiento</button>
+          <button type="button" class="entry-delete" data-hist-delete="${esc(h.id)}">Eliminar entrenamiento</button>
         </div>
       </details>`;
   }).join('');
-  gymHistory.innerHTML = `<p class="eyebrow">Historial de entrenamientos</p><div class="week-list">${rows}</div>${items.length > 20 ? `<p class="description">Mostrando los últimos 20 de ${items.length}.</p>` : ''}`;
+  gymHistory.innerHTML = `<div class="hist">${rows}</div>${items.length > 20 ? `<p class="hint">Mostrando los últimos 20 de ${items.length}.</p>` : ''}`;
 }
 
 gymHistory.addEventListener('click', evt => {
@@ -1214,19 +1451,20 @@ function renderGymLegacy() {
   const wasOpen = gymLegacy.open;
   gymLegacy.innerHTML = `
     <summary>Rutina anterior (archivada)</summary>
-    <p class="description">Ya no está activa. Se conserva como referencia junto con los entrenamientos de Agosto.</p>
+    <p class="hint">Ya no está activa. Se conserva como referencia junto con los entrenamientos de Agosto.</p>
     <div class="legacy-list">
       ${oldWorkouts.map(w => `
         <div class="legacy-item">
           <p class="legacy-item-title">${esc(w.name)}</p>
-          <ul class="exercise-list compact">${w.exercises.map(ex => `<li>${esc(ex)}</li>`).join('')}</ul>
+          <ul class="compact">${w.exercises.map(ex => `<li>${esc(ex)}</li>`).join('')}</ul>
         </div>`).join('')}
-      ${items.length ? `<p class="eyebrow legacy-sep">Entrenamientos registrados en Agosto</p>${items.map(legacyItemHTML).join('')}` : ''}
+      ${items.length ? `<p class="legacy-sep">Entrenamientos registrados en Agosto</p>${items.map(legacyItemHTML).join('')}` : ''}
     </div>`;
   gymLegacy.open = wasOpen;
 }
 
 function renderGymAll() {
+  gymKicker.textContent = GYM_ROUTINE.name;
   renderGymOverview();
   renderGymTabs();
   renderGymDay();
@@ -1238,6 +1476,75 @@ function renderRoutines() {
   renderGymAll();
 }
 
+// Al abrir la app: si dejaste un día a medias, se abre ese; si no, el próximo día pendiente de la semana.
+(function pickInitialDay() {
+  const inProgress = GYM_ROUTINE.days.find(d => {
+    const s = state.gym.current[d.id];
+    return s && s.sets && Object.keys(s.sets).length > 0;
+  });
+  const target = inProgress ? inProgress.id : suggestedDayId();
+  if (target && target !== state.gym.activeDay) {
+    state.gym.activeDay = target;
+    saveState();
+  }
+})();
+
+/* ============================================================
+   Respaldo: exportar / importar
+   ============================================================ */
+const backupExport = document.getElementById('backup-export');
+const backupImportBtn = document.getElementById('backup-import-btn');
+const backupImport = document.getElementById('backup-import');
+const backupMsg = document.getElementById('backup-msg');
+
+function backupSay(text) {
+  backupMsg.textContent = text;
+}
+
+backupExport.addEventListener('click', () => {
+  try {
+    const payload = JSON.stringify({ app: 'autodestruccion', version: 1, exportedAt: new Date().toISOString(), data: state }, null, 2);
+    const blob = new Blob([payload], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `autodestruccion-respaldo-${toISODate(new Date())}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    backupSay(`Respaldo descargado (${state.gym.history.length} entrenamientos, ${state.running.entries.length} registros de running).`);
+  } catch (err) {
+    backupSay('No se pudo generar el respaldo en este navegador.');
+  }
+});
+
+backupImportBtn.addEventListener('click', () => {
+  armConfirm(backupImportBtn, '¿Seguro? Reemplaza los datos actuales', () => backupImport.click());
+});
+
+backupImport.addEventListener('change', () => {
+  const file = backupImport.files && backupImport.files[0];
+  backupImport.value = '';
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(String(reader.result));
+      const data = parsed && parsed.app === 'autodestruccion' ? parsed.data : null;
+      if (!data || typeof data !== 'object' || !data.gym || !data.running) throw new Error('formato');
+      state = normalizeState(data);
+      saveState();
+      renderAll();
+      backupSay(`Respaldo importado: ${state.gym.history.length} entrenamientos y ${state.running.entries.length} registros de running.`);
+    } catch (err) {
+      backupSay('Ese archivo no es un respaldo válido de esta app. No se cambió nada.');
+    }
+  };
+  reader.onerror = () => backupSay('No se pudo leer el archivo.');
+  reader.readAsText(file);
+});
+
 function renderAll() {
   renderRoutines();
   renderRunning();
@@ -1245,3 +1552,14 @@ function renderAll() {
 }
 
 renderAll();
+
+/* App sin conexión + aviso de versión nueva */
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (hadController) showToast('Hay una versión nueva de la app.', 'Actualizar', () => location.reload(), 0);
+  });
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}

@@ -3,7 +3,27 @@ const STORAGE_KEY = 'dark-gym-planner-v1';
 const RUNNING_WEEKLY_GOAL_KM = 21;
 const GYM_ROUTINE_ID = 'entrenamiento-dali-2026-10-10';
 // Revisión de la rutina del entrenador. Al cambiar, se migran las cargas guardadas (ver normalizeState).
-const GYM_ROUTINE_REV = 'semana-2-2026-10-19';
+const GYM_ROUTINE_REV = 'semana-3-2026-10-26';
+
+/* Semanas de la rutina. La vigente es la primera. Las demás quedan cerradas: se pueden consultar pero ya no se les cargan entrenamientos.
+   Los entrenamientos viejos (sin weekId) se ubican por fecha. */
+const GYM_WEEKS = [
+  { id: 's3', label: 'Semana 3', range: '26 oct – 1 nov', start: '2026-10-26', end: '2026-11-01' },
+  { id: 's2', label: 'Semana 2', range: '19 – 25 oct', start: '2026-10-19', end: '2026-10-25' },
+  { id: 's1', label: 'Semana 1', range: 'hasta el 18 oct', start: '', end: '2026-10-18' },
+];
+const ACTIVE_WEEK = GYM_WEEKS[0];
+const BAR_KG = 20; // barra olímpica (la planilla cuenta siempre la barra)
+
+function weekIdOfDate(date) {
+  if (date >= GYM_WEEKS[0].start) return GYM_WEEKS[0].id;
+  if (date >= GYM_WEEKS[1].start) return GYM_WEEKS[1].id;
+  return GYM_WEEKS[2].id;
+}
+
+function weekIdOf(h) {
+  return h && h.weekId ? h.weekId : weekIdOfDate(String(h && h.date || ''));
+}
 // Pesos de la revisión anterior (16/10), para distinguir cargas editadas por vos de cargas que solo se "confirmaron".
 const PREV_WEIGHTS = {"d1-a4:0":"10 kg","d1-b1:0":"120 kg","d1-b1:1":"120 kg","d1-b1:2":"120 kg","d1-b2:0":"14 o 16 kg x lado","d1-b2:1":"14 o 16 kg x lado","d1-b2:2":"14 o 16 kg x lado","d1-b3:0":"50","d1-b3:1":"50","d1-b3:2":"50","d1-c1:0":"30-40","d1-c1:1":"30-40","d2-b2:0":"30","d2-b2:1":"30","d2-b2:2":"30","d2-b3:0":"16-18","d2-b3:1":"16-18","d2-c1:0":"7 kg","d2-c1:1":"7 kg","d2-c1:2":"7 kg","d2-c2:0":"5 o 6","d2-c2:1":"5 o 6","d2-c2:2":"5 o 6","d2-c3:0":"15","d2-c3:1":"15","d2-d1:0":"15 - 17,5","d2-d1:1":"15 - 17,5","d2-d1:2":"15 - 17,5","d3-a4:0":"10 kg","d3-b1:0":"20","d3-b1:1":"30","d3-b1:2":"45","d3-b1:3":"45","d3-b1:4":"45","d3-b2:0":"10 kg x lado","d3-b2:1":"10 kg x lado","d3-b2:2":"10 kg x lado","d3-b3:0":"60-70","d3-b3:1":"60-70","d3-b3:2":"60-70","d3-c1:0":"40-50","d3-c1:1":"40-50","d3-c1:2":"40-50","d3-c3:0":"25-35","d3-c3:1":"25-35","d3-c3:2":"25-35","d3-d1:0":"BW","d3-d1:1":"BW","d3-d1:2":"BW","d4-a4:0":"10 kg","d4-b1:0":"30","d4-b1:1":"50","d4-b1:2":"60-70","d4-b1:3":"60-70","d4-b1:4":"60-70","d4-b2:0":"90 kg","d4-b2:1":"90 kg","d4-b2:2":"90 kg","d4-b2:3":"90 kg","d4-c1:0":"30-40","d4-c1:1":"30-40","d4-c1:2":"30-40"};
 
@@ -116,18 +136,18 @@ function circuitoCadera(dayId, buenosDiasLink) {
 
 const GYM_ROUTINE = {
   id: GYM_ROUTINE_ID,
-  name: 'Entrenamiento Dali · Semana 2',
-  source: 'Planilla de Juan Pablo “Entrenamiento Dali”, Semana 2 (19 oct 2026)',
+  name: 'Entrenamiento Dali · Semana 3',
+  source: 'Planilla de Juan Pablo “Entrenamiento Dali”, Semana 3 (26 oct 2026)',
   days: [
     {
       id: 'd1', title: 'Día 1 - Pierna I',
       exercises: [
         ...circuitoCadera('d1', null),
-        X('d1', 'B1', 'Hip Thrust', { trackWeight: true, sets: [S(3, '6-8', '120-180"', '120 kg')],
+        X('d1', 'B1', 'Hip Thrust', { trackWeight: true, bar: { mode: 'total', kg: BAR_KG }, sets: [S(3, '6-8', '120-180"', '120 kg')],
           allowApproach: { weight: '60 - 80 kg' },
           note: 'hace unas series antes de aproximacion con 60 - 80 kg - a partir de ahora empezamos a contar siempre la barra' }),
-        X('d1', 'B2', 'Estocadas búlgaras', { trackWeight: true, sets: [S(3, '8-10', '120-180"', '30 kg + barra')] }),
-        X('d1', 'B3', 'Peso muerto rumano', { trackWeight: true, sets: [S(3, '8-10', '120-180"', '50 kg')] }),
+        X('d1', 'B2', 'Estocadas búlgaras', { trackWeight: true, bar: { mode: 'discs' }, sets: [S(3, '8-10', '120-180"', '30 kg + barra')] }),
+        X('d1', 'B3', 'Peso muerto rumano', { trackWeight: true, bar: { mode: 'total', kg: BAR_KG }, sets: [S(3, '8-10', '120-180"', '50 kg')] }),
         X('d1', 'C1', 'Isquios en máquina', { trackWeight: true, sets: [S(2, '10-12', '60-90"', '35 kg')] }),
         X('d1', 'C2', 'Abductores en polea', { trackWeight: true, sets: [S(2, '12-15', '60-90"', '', true)] }),
         X('d1', 'C3', 'Pata de glúteo en polea', { trackWeight: true, sets: [S(2, '15-20', '60-90"', '20 kg')] }),
@@ -164,10 +184,10 @@ const GYM_ROUTINE = {
       id: 'd3', title: 'Día 3 - Piernas II',
       exercises: [
         ...circuitoCadera('d3', null),
-        X('d3', 'B1', 'Sentadilla', { trackWeight: true,
+        X('d3', 'B1', 'Sentadilla', { trackWeight: true, bar: { mode: 'total', kg: BAR_KG },
           sets: [AP(1, '10', '60"', '20 kg'), AP(1, '6', '60"', '30 kg'), S(3, '6', '120-180"', '65 kg', true)],
           note: 'Empezamos a escalar las sentadillas para usar rangos mas bajos de repes y mas pesados - subi a 45 porque ya haces 10 con 40 para empzar a estimar -' }),
-        X('d3', 'B2', 'Sentadilla en smith enfoque cuádriceps', { trackWeight: true, sets: [S(3, '8-10', '90-120"', '17,5 kg x lado')] }),
+        X('d3', 'B2', 'Sentadilla en smith enfoque cuádriceps', { trackWeight: true, bar: { mode: 'side' }, sets: [S(3, '8-10', '90-120"', '17,5 kg x lado')] }),
         X('d3', 'B3', 'Prensa', { trackWeight: true, sets: [S(3, '8-10', '90-120"', '72,5 kg')] }),
         X('d3', 'C1', 'Cuádriceps en máquina', { trackWeight: true, sets: [S(3, '10-12', '60-90"', '50 kg')] }),
         X('d3', 'C3', 'Aductores', { trackWeight: true, sets: [S(3, '12-15', '60-90"', '37,5 kg')] }),
@@ -178,9 +198,9 @@ const GYM_ROUTINE = {
       id: 'd4', title: 'Día 4 - Piernas II',
       exercises: [
         ...circuitoCadera('d4', LINKS.buenosDias),
-        X('d4', 'B1', 'Peso muerto convencional', { trackWeight: true,
+        X('d4', 'B1', 'Peso muerto convencional', { trackWeight: true, bar: { mode: 'total', kg: BAR_KG },
           sets: [AP(1, '5', '60"', '30 kg'), AP(1, '3', '60"', '50 kg'), S(3, '5', '120-180"', '62,5 kg')] }),
-        X('d4', 'B2', 'Hip thrust', { trackWeight: true, sets: [S(4, '10-12', '120-180"', '100 kg', true)],
+        X('d4', 'B2', 'Hip thrust', { trackWeight: true, bar: { mode: 'total', kg: BAR_KG }, sets: [S(4, '10-12', '120-180"', '100 kg', true)],
           note: 'Probamos con este peso para arrancar, puede ser 100 también si 90 es muy fácil. Y hacerlas lentas' }),
         X('d4', 'C1', 'Isquios en máquina', { trackWeight: true, sets: [S(3, '10-12', '60-90"', '35 kg')] }),
         X('d4', 'C2', 'Abductores en polea', { trackWeight: true, sets: [S(2, '10-12', '60-90"', '', true)] }),
@@ -229,6 +249,8 @@ const DEFAULT_STATE = {
     loads: {},
     confirmed: {},
     rev: GYM_ROUTINE_REV,
+    week: ACTIVE_WEEK.id,
+    weekArchive: {},
     current: {},
     history: [],
   },
@@ -316,6 +338,7 @@ function normalizeState(parsed) {
   if (!Array.isArray(parsed.gym.history)) parsed.gym.history = [];
   if (!parsed.gym.confirmed || typeof parsed.gym.confirmed !== 'object') parsed.gym.confirmed = {};
   migrateGymLoads(parsed.gym);
+  migrateGymWeek(parsed.gym);
 
   // Running: objetivo único semanal con registro libre de km
   if (!parsed.running || typeof parsed.running !== 'object') parsed.running = clone(DEFAULT_STATE.running);
@@ -341,6 +364,56 @@ function migrateGymLoads(gym) {
     }
   });
   gym.rev = GYM_ROUTINE_REV;
+}
+
+/* Cambio de semana (Semana 2 → Semana 3). Nada se borra:
+   - Las sesiones que quedaron a medias pasan al historial de la Semana 2.
+   - Las cargas que habías editado y confirmado quedan guardadas en weekArchive.s2, y la Semana 3 arranca con los pesos de Juan Pablo.
+   - El Día 4 de la Semana 2 queda marcado como no realizado (si no tiene ningún entrenamiento guardado).
+   Corre una sola vez (gym.week). */
+function migrateGymWeek(gym) {
+  if (!gym.weekArchive || typeof gym.weekArchive !== 'object') gym.weekArchive = {};
+  if (gym.week === ACTIVE_WEEK.id) return;
+  const closing = GYM_WEEKS[1];
+  Object.keys(gym.current).forEach(dayId => {
+    const day = GYM_ROUTINE.days.find(d => d.id === dayId);
+    const sess = gym.current[dayId];
+    if (!day || !sess) return;
+    let date = String(sess.startedAt || '').slice(0, 10);
+    if (!isValidISODate(date) || date > closing.end) date = closing.end;
+    if (date < closing.start) date = closing.start;
+    const entry = buildHistoryEntry(day, sess, gym, date, { weekId: closing.id, partial: true });
+    if (entry) gym.history.push(entry);
+  });
+  gym.current = {};
+  if (!gym.weekArchive[closing.id]) gym.weekArchive[closing.id] = { loads: gym.loads, confirmed: gym.confirmed };
+  gym.loads = {};
+  gym.confirmed = {};
+  const day4 = GYM_ROUTINE.days.find(d => d.id === 'd4');
+  if (day4 && !gym.history.some(h => h.dayId === 'd4' && weekIdOf(h) === closing.id)) {
+    gym.history.push({
+      id: `${closing.id}-d4-no-realizado`,
+      routineId: GYM_ROUTINE_ID,
+      weekId: closing.id,
+      status: 'no_realizado',
+      dayId: 'd4',
+      dayTitle: day4.title,
+      date: '2026-10-24',
+      finishedAt: '2026-10-25T23:59:00.000Z',
+      setsDone: 0,
+      setsTotal: day4.exercises.reduce((sum, ex) => sum + ex.baseSets.length, 0),
+      volume: 0,
+      exercises: [],
+    });
+  }
+  gym.history.sort(compareHistory);
+  gym.week = ACTIVE_WEEK.id;
+  gym.rev = GYM_ROUTINE_REV;
+}
+
+function compareHistory(a, b) {
+  if (a.date === b.date) return a.finishedAt < b.finishedAt ? 1 : -1;
+  return a.date < b.date ? 1 : -1;
 }
 
 function loadState() {
@@ -854,12 +927,13 @@ function getGymDay(id) {
 function getSession(dayId, create) {
   let sess = state.gym.current[dayId];
   if (!sess && create) {
-    sess = { startedAt: new Date().toISOString(), sets: {}, extra: {} };
+    sess = { startedAt: new Date().toISOString(), sets: {}, extra: {}, intensity: {} };
     state.gym.current[dayId] = sess;
   }
   if (sess) {
     if (!sess.sets) sess.sets = {};
     if (!sess.extra) sess.extra = {};
+    if (!sess.intensity) sess.intensity = {};
   }
   return sess || null;
 }
@@ -886,11 +960,12 @@ function normW(v) {
   return String(v == null ? '' : v).trim().toLowerCase().replace(/\s*kg\b/g, '').replace(/\s+/g, ' ');
 }
 
-function effectivePlan(set) {
-  const ov = state.gym.loads[set.id];
+function effectivePlan(set, gym) {
+  const g = gym || state.gym;
+  const ov = g.loads[set.id];
   // Tu edición vale mientras el entrenador no haya cambiado el peso sobre el que editaste.
   if (ov && normW(ov.base) === normW(set.weight)) return { text: ov.weight, pending: false };
-  const confirmed = normW(state.gym.confirmed[set.id]) === normW(set.weight) && normW(set.weight) !== '';
+  const confirmed = normW(g.confirmed[set.id]) === normW(set.weight) && normW(set.weight) !== '';
   return { text: set.weight, pending: !!set.est && !confirmed };
 }
 
@@ -912,10 +987,61 @@ function sessionCounts(day) {
   return { done, total };
 }
 
-function fmtRecorded(set) {
+/* Kilos por lado de la barra.
+   - total: el peso incluye la barra (20 kg) → (total − barra) ÷ 2 por lado.
+   - discs: la planilla da los discos de ambos lados juntos ("30 kg + barra") → ÷ 2 por lado, más la barra de la Smith.
+   - side: la planilla ya da los discos de cada lado ("17,5 kg x lado"), más la barra de la Smith. */
+function kgText(n) {
+  return String(Math.round(n * 100) / 100).replace('.', ',');
+}
+
+function weightNums(text) {
+  const t = String(text == null ? '' : text);
+  const range = t.match(/(\d+(?:[.,]\d+)?)\s*-\s*(\d+(?:[.,]\d+)?)/);
+  if (range) return [num(range[1]), num(range[2])];
+  const one = t.match(/\d+(?:[.,]\d+)?/);
+  return one ? [num(one[0])] : [];
+}
+
+function sideInfo(ex, text) {
+  const bar = ex && ex.bar;
+  if (!bar) return null;
+  const nums = weightNums(text);
+  if (!nums.length || nums.some(n => n == null)) return null;
+  const join = arr => arr.map(kgText).join(' - ');
+  if (bar.mode === 'total') {
+    if (nums.some(n => n < bar.kg)) return { short: '', long: `Ojo: es menos que la barra (${kgText(bar.kg)} kg)` };
+    const per = nums.map(n => (n - bar.kg) / 2);
+    if (per.every(v => v === 0)) return { short: 'solo la barra', long: `Solo la barra (${kgText(bar.kg)} kg), sin discos` };
+    return { short: `${join(per)} por lado`, long: `${join(per)} kg por lado · barra ${kgText(bar.kg)} kg · total ${join(nums)} kg` };
+  }
+  if (bar.mode === 'discs') {
+    const per = nums.map(n => n / 2);
+    return { short: `${join(per)} por lado`, long: `${join(per)} kg por lado · ${join(nums)} kg de discos en total · más la barra de la Smith` };
+  }
+  const total = nums.map(n => n * 2);
+  return { short: `${join(nums)} por lado`, long: `${join(nums)} kg por lado · ${join(total)} kg de discos en total · más la barra de la Smith` };
+}
+
+function barChip(ex) {
+  if (!ex.bar) return '';
+  if (ex.bar.mode === 'total') return `peso total con barra de ${kgText(ex.bar.kg)} kg`;
+  if (ex.bar.mode === 'discs') return 'discos de ambos lados + barra Smith';
+  return 'discos por lado + barra Smith';
+}
+
+function sideLineHTML(ex, kind, text) {
+  const info = sideInfo(ex, text);
+  const label = kind === 'real' ? 'Real' : 'Plan';
+  return info ? `<span class="side-tag">${label}</span> ${esc(info.long)}` : '';
+}
+
+function fmtRecorded(set, ex) {
   const w = String(set.weight || '').trim();
   const r = String(set.reps || '').trim();
-  const wText = w ? (num(w) !== null && /^[\d.,\s]+$/.test(w) ? `${w} kg` : w) : '';
+  let wText = w ? (num(w) !== null && /^[\d.,\s]+$/.test(w) ? `${w} kg` : w) : '';
+  const info = w && ex ? sideInfo(ex, w) : null;
+  if (wText && info && info.short) wText += ` (${info.short})`;
   if (wText && r) return `${wText} × ${r}`;
   return wText || r || '✔';
 }
@@ -975,7 +1101,12 @@ function exerciseMetaChips(ex) {
   if (repsSet.length === 1) chips.push(/^[\d-]+$/.test(repsSet[0]) ? `${repsSet[0]} reps` : repsSet[0]);
   const restSet = [...new Set(ef.map(s => s.rest).filter(Boolean))];
   if (restSet.length === 1) chips.push(`descanso ${restSet[0]}`);
-  if (ex.allowApproach) chips.push(`aproximación ${ex.allowApproach.weight}`);
+  if (ex.allowApproach) {
+    const ai = sideInfo(ex, ex.allowApproach.weight);
+    chips.push(`aproximación ${ex.allowApproach.weight}${ai && ai.short ? ` (${ai.short})` : ''}`);
+  }
+  const bc = barChip(ex);
+  if (bc) chips.push(bc);
   return chips.map(c => `<span class="chip">${esc(c)}</span>`).join('');
 }
 
@@ -1019,6 +1150,15 @@ function setRowHTML(ex, set, sess) {
       fields = `<div class="gset-fields one">${repsField}</div>`;
     }
   }
+  let sideHTML = '';
+  if (ex.bar && ex.trackWeight && !ex.checkOnly) {
+    const planLine = sideLineHTML(ex, 'plan', effectivePlan(set).text);
+    const realLine = sideLineHTML(ex, 'real', st.weight);
+    sideHTML = `<div class="gset-sides">
+        <p class="gset-side" data-side="plan"${planLine ? '' : ' hidden'}>${planLine}</p>
+        <p class="gset-side is-real" data-side="real"${realLine ? '' : ' hidden'}>${realLine}</p>
+      </div>`;
+  }
   return `
     <div class="gset ${set.kind === 'aproximacion' ? 'is-approach' : 'is-effective'}${st.done ? ' is-done' : ''}" data-set-row="${esc(set.id)}">
       <div class="gset-top">
@@ -1031,6 +1171,21 @@ function setRowHTML(ex, set, sess) {
         <span class="gset-plan">${esc(planParts.join(' · '))}</span>
       </div>
       ${fields}
+      ${sideHTML}
+    </div>`;
+}
+
+/* Intensidad percibida de 1 a 10, una por ejercicio */
+function intensityHTML(ex, sess) {
+  if (ex.checkOnly) return '';
+  const cur = sess && sess.intensity ? Number(sess.intensity[ex.id]) || 0 : 0;
+  const btns = Array.from({ length: 10 }, (_, i) => {
+    const v = i + 1;
+    return `<button type="button" role="radio" aria-checked="${cur === v ? 'true' : 'false'}" class="int-btn${cur === v ? ' is-on' : ''}" data-gaction="intensity" data-ex="${esc(ex.id)}" data-value="${v}" aria-label="Intensidad ${v} de 10">${v}</button>`;
+  }).join('');
+  return `<div class="gx-int">
+      <p class="gx-int-label">Intensidad (1–10)<strong data-int-val>${cur ? `${cur}/10` : 'sin anotar'}</strong></p>
+      <div class="int-scale" role="radiogroup" aria-label="Intensidad percibida de ${esc(ex.name)}, de 1 a 10">${btns}</div>
     </div>`;
 }
 
@@ -1048,7 +1203,7 @@ function exerciseHTML(ex) {
   }
   const prog = exerciseProgress(ex.id);
   const progHTML = prog.last
-    ? `<p class="gx-progress">Última vez (${esc(fmtShortDate(prog.last.date))}): <strong>${esc(fmtRecorded(prog.last.set))}</strong>${prog.best ? ` · Mejor: <strong>${esc(fmtRecorded(prog.best.set))}</strong>` : ''}</p>`
+    ? `<p class="gx-progress">Última vez (${esc(fmtShortDate(prog.last.date))}): <strong>${esc(fmtRecorded(prog.last.set, ex))}</strong>${prog.best ? ` · Mejor: <strong>${esc(fmtRecorded(prog.best.set, ex))}</strong>` : ''}</p>`
     : '';
   const extraCount = sess && sess.extra[ex.id] ? sess.extra[ex.id] : 0;
   const approachControls = ex.allowApproach ? `
@@ -1069,6 +1224,7 @@ function exerciseHTML(ex) {
       ${progHTML}
       <div class="gx-sets">${sets.map(s => setRowHTML(ex, s, sess)).join('')}</div>
       ${approachControls}
+      ${intensityHTML(ex, sess)}
     </article>`;
 }
 
@@ -1083,7 +1239,7 @@ function ringHTML(pct) {
 function doneThisWeek(dayId) {
   const start = toISODate(mondayOf(new Date()));
   const end = toISODate(addDays(mondayOf(new Date()), 6));
-  return state.gym.history.some(h => h.dayId === dayId && h.date >= start && h.date <= end);
+  return state.gym.history.some(h => h.dayId === dayId && h.status !== 'no_realizado' && h.date >= start && h.date <= end);
 }
 
 function suggestedDayId() {
@@ -1152,7 +1308,7 @@ function renderGymDay() {
       <section class="card finish">
         <div class="field">
           <label for="gym-finish-date">Fecha del entrenamiento</label>
-          <input id="gym-finish-date" type="date" value="${todayIso}" max="${todayIso}" />
+          <input id="gym-finish-date" type="date" value="${todayIso < ACTIVE_WEEK.start ? ACTIVE_WEEK.start : todayIso}" min="${ACTIVE_WEEK.start}" max="${todayIso}" />
         </div>
         <div class="finish-actions">
           <button type="button" class="btn btn-primary btn-block" data-gaction="finish"${counts.done ? '' : ' disabled'}>${icon('circle-check')} Finalizar entrenamiento</button>
@@ -1246,9 +1402,19 @@ gymDay.addEventListener('change', evt => {
       if (value === '') t.value = plan.text || '';
       const label = field.querySelector('label');
       if (label) label.innerHTML = `Plan${plan.pending ? pendingPillHTML(setId) : ''}`;
+      refreshSideLine(t.closest('.gset'), ex, 'plan', plan.text);
     }
   }
 });
+
+function refreshSideLine(row, ex, kind, text) {
+  if (!row) return;
+  const el = row.querySelector(`[data-side="${kind}"]`);
+  if (!el) return;
+  const html = sideLineHTML(ex, kind, text);
+  el.innerHTML = html;
+  el.hidden = !html;
+}
 
 gymDay.addEventListener('input', evt => {
   const t = evt.target;
@@ -1262,6 +1428,7 @@ gymDay.addEventListener('input', evt => {
   const st = sess.sets[setId];
   const hadData = String(st.weight || '').trim() !== '' || String(st.reps || '').trim() !== '';
   st[kind] = t.value;
+  if (kind === 'weight') refreshSideLine(t.closest('.gset'), ex, 'real', t.value);
   // Si empezás a cargar peso o repeticiones en una serie, se tilda sola (antes se perdía al finalizar si no la tildabas).
   if (!hadData && t.value.trim() !== '' && !st.done) {
     st.done = true;
@@ -1308,6 +1475,24 @@ gymDay.addEventListener('click', evt => {
       saveState();
       rerenderExercise(ex.id);
     }
+  } else if (action === 'intensity') {
+    const ex = EX_INDEX[btn.dataset.ex];
+    if (!ex) return;
+    const value = Number(btn.dataset.value);
+    const sess = getSession(ex.dayId, true);
+    const current = Number(sess.intensity[ex.id]) || 0;
+    if (current === value) delete sess.intensity[ex.id];
+    else sess.intensity[ex.id] = value;
+    saveState();
+    const now = Number(sess.intensity[ex.id]) || 0;
+    const box = btn.closest('.gx-int');
+    box.querySelectorAll('.int-btn').forEach(b => {
+      const on = Number(b.dataset.value) === now;
+      b.classList.toggle('is-on', on);
+      b.setAttribute('aria-checked', on ? 'true' : 'false');
+    });
+    box.querySelector('[data-int-val]').textContent = now ? `${now}/10` : 'sin anotar';
+    updateDayProgress(ex.dayId);
   } else if (action === 'finish') {
     finishSession(day.id);
   } else if (action === 'discard') {
@@ -1320,15 +1505,8 @@ gymDay.addEventListener('click', evt => {
   }
 });
 
-function finishSession(dayId) {
-  const day = getGymDay(dayId);
-  const sess = getSession(dayId, false);
-  if (!sess) return;
-  const dateInput = document.getElementById('gym-finish-date');
-  const todayIso = toISODate(new Date());
-  let date = dateInput && isValidISODate(dateInput.value) ? dateInput.value : todayIso;
-  if (date > todayIso) date = todayIso;
-
+/* Arma el registro de un entrenamiento a partir de la sesión. Sirve para finalizar un día y para pasar al historial una sesión a medias. */
+function buildHistoryEntry(day, sess, gym, date, extra) {
   const exercises = [];
   let done = 0;
   let total = 0;
@@ -1338,12 +1516,12 @@ function finishSession(dayId) {
     total += sets.length;
     const recorded = sets
       .filter(s => {
-        const st = sess.sets[s.id];
+        const st = sess.sets && sess.sets[s.id];
         return st && (st.done || String(st.weight || '').trim() !== '' || String(st.reps || '').trim() !== '');
       })
       .map(s => {
         const st = sess.sets[s.id];
-        return { kind: s.kind, plan: effectivePlan(s).text || '', done: true, weight: String(st.weight || '').trim(), reps: String(st.reps || '').trim() };
+        return { kind: s.kind, plan: effectivePlan(s, gym).text || '', done: true, weight: String(st.weight || '').trim(), reps: String(st.reps || '').trim() };
       });
     done += recorded.length;
     recorded.filter(r => r.kind === 'efectiva').forEach(r => {
@@ -1351,13 +1529,18 @@ function finishSession(dayId) {
       const n = repsNum(r.reps);
       if (w != null && n != null) volume += w * n;
     });
-    if (recorded.length) exercises.push({ id: ex.id, code: ex.code, name: ex.name, sets: recorded });
+    if (recorded.length) {
+      const rec = { id: ex.id, code: ex.code, name: ex.name, sets: recorded };
+      const inten = Number(sess.intensity && sess.intensity[ex.id]) || 0;
+      if (inten >= 1 && inten <= 10) rec.intensity = inten;
+      exercises.push(rec);
+    }
   });
-  if (!done) return;
-
-  state.gym.history.push({
+  if (!done) return null;
+  return Object.assign({
     id: uid(),
     routineId: GYM_ROUTINE_ID,
+    weekId: ACTIVE_WEEK.id,
     dayId: day.id,
     dayTitle: day.title,
     date,
@@ -1366,8 +1549,25 @@ function finishSession(dayId) {
     setsTotal: total,
     volume: Math.round(volume * 100) / 100,
     exercises,
-  });
-  state.gym.history.sort((a, b) => (a.date === b.date ? (a.finishedAt < b.finishedAt ? 1 : -1) : (a.date < b.date ? 1 : -1)));
+  }, extra || {});
+}
+
+function finishSession(dayId) {
+  const day = getGymDay(dayId);
+  const sess = getSession(dayId, false);
+  if (!sess) return;
+  const dateInput = document.getElementById('gym-finish-date');
+  const todayIso = toISODate(new Date());
+  let date = dateInput && isValidISODate(dateInput.value) ? dateInput.value : todayIso;
+  if (date > todayIso) date = todayIso;
+  // La Semana 2 está cerrada: los entrenamientos nuevos van a la semana vigente.
+  if (date < ACTIVE_WEEK.start) date = todayIso < ACTIVE_WEEK.start ? ACTIVE_WEEK.start : todayIso;
+
+  const entry = buildHistoryEntry(day, sess, state.gym, date);
+  if (!entry) return;
+
+  state.gym.history.push(entry);
+  state.gym.history.sort(compareHistory);
   delete state.gym.current[dayId];
   // Después de terminar, queda seleccionado el próximo día pendiente de la semana
   const next = suggestedDayId();
@@ -1376,14 +1576,14 @@ function finishSession(dayId) {
   stopRest();
   renderGymAll();
   window.scrollTo(0, 0);
-  showToast(`${dayParts(day).n} guardado: ${done} series`);
+  showToast(`${dayParts(day).n} guardado: ${entry.setsDone} series`);
 }
 
 function renderGymOverview() {
   const monday = mondayOf(new Date());
   const start = toISODate(monday);
   const end = toISODate(addDays(monday, 6));
-  const weekItems = state.gym.history.filter(h => h.date >= start && h.date <= end);
+  const weekItems = state.gym.history.filter(h => h.status !== 'no_realizado' && h.date >= start && h.date <= end);
   const sets = weekItems.reduce((sum, h) => sum + (h.setsDone || 0), 0);
   const volume = weekItems.reduce((sum, h) => sum + (h.volume || 0), 0);
   const total = GYM_ROUTINE.days.length;
@@ -1391,7 +1591,7 @@ function renderGymOverview() {
   const next = suggestedDayId();
   const nextDay = next ? getGymDay(next) : null;
   const title = nextDay ? `Te toca: ${dayParts(nextDay).n}` : 'Semana completa';
-  const sub = nextDay ? `${dayParts(nextDay).name} · semana del ${weekLabel(monday)}` : `Cerraste los ${total} días · semana del ${weekLabel(monday)}`;
+  const sub = nextDay ? `${dayParts(nextDay).name} · ${ACTIVE_WEEK.label} (${weekLabel(monday)})` : `Cerraste los ${total} días · ${ACTIVE_WEEK.label} (${weekLabel(monday)})`;
   const pips = GYM_ROUTINE.days.map(d => `<span class="pip${doneThisWeek(d.id) ? ' on' : ''}"></span>`).join('');
   gymOverview.innerHTML = `
     <div class="week-hero card">
@@ -1404,35 +1604,69 @@ function renderGymOverview() {
         <div class="stat"><span>Series</span><strong>${sets}</strong></div>
         <div class="stat"><span>Volumen</span><strong>${formatNumber(volume)}<small> kg</small></strong></div>
       </div>
-      <p class="hint">${esc(GYM_ROUTINE.source)}. “Sin confirmar” marca las cargas que en la planilla tienen “?”.</p>
+      <p class="hint">${esc(GYM_ROUTINE.source)}. “Sin confirmar” marca las cargas que en la planilla tienen “?”. En los ejercicios con barra se ven los kilos por lado y el total.</p>
     </div>`;
 }
 
-function renderGymHistory() {
-  const items = state.gym.history;
-  if (!items.length) {
-    gymHistory.innerHTML = '<p class="empty">Todavía no finalizaste ningún entrenamiento de esta rutina.</p>';
-    return;
-  }
-  const rows = items.slice(0, 20).map(h => {
-    const exHTML = (h.exercises || []).map(e => `
-      <div class="hist-ex"><strong>${esc(e.code)} ${esc(e.name)}</strong>
-        <span>${e.sets.map(s => `${s.kind === 'aproximacion' ? '<em>aprox.</em> ' : ''}${esc(fmtRecorded(s))}`).join(' · ')}</span>
-      </div>`).join('');
+const openGymWeeks = new Set([ACTIVE_WEEK.id]);
+
+function histRowHTML(h) {
+  if (h.status === 'no_realizado') {
     return `
-      <details class="hrow">
+      <div class="hrow hrow-static">
+        <div class="h-main"><p class="h-day">${esc(h.dayTitle)}</p><p class="h-date">${esc(fmtShortDate(h.date))}</p></div>
+        <span class="status-pill status-no-realizado">No realizado</span>
+      </div>`;
+  }
+  const exHTML = (h.exercises || []).map(e => {
+    const ex = EX_INDEX[e.id];
+    const inten = e.intensity ? ` · intensidad ${e.intensity}/10` : '';
+    return `
+      <div class="hist-ex"><strong>${esc(e.code)} ${esc(e.name)}</strong>
+        <span>${e.sets.map(s => `${s.kind === 'aproximacion' ? '<em>aprox.</em> ' : ''}${esc(fmtRecorded(s, ex))}`).join(' · ')}${esc(inten)}</span>
+      </div>`;
+  }).join('');
+  return `
+    <details class="hrow">
+      <summary>
+        <div class="h-main"><p class="h-day">${esc(h.dayTitle)}${h.partial ? ' <span class="status-pill">Incompleto</span>' : ''}</p><p class="h-date">${esc(fmtShortDate(h.date))}</p></div>
+        <p class="h-meta">${h.setsDone}/${h.setsTotal} series${h.volume ? `<br>${formatNumber(h.volume)} kg` : ''}</p>
+      </summary>
+      <div class="hrow-body">
+        ${exHTML}
+        ${h.partial ? '<p class="hint">Sesión que había quedado a medias al cerrar la Semana 2.</p>' : ''}
+        <button type="button" class="entry-delete" data-hist-delete="${esc(h.id)}">Eliminar entrenamiento</button>
+      </div>
+    </details>`;
+}
+
+function renderGymHistory() {
+  const total = GYM_ROUTINE.days.length;
+  const html = GYM_WEEKS.map(w => {
+    const items = state.gym.history.filter(h => weekIdOf(h) === w.id);
+    const days = new Set(items.filter(h => h.status !== 'no_realizado').map(h => h.dayId)).size;
+    const active = w.id === ACTIVE_WEEK.id;
+    const body = items.length
+      ? `<div class="hist">${items.map(histRowHTML).join('')}</div>`
+      : '<p class="empty">Sin entrenamientos guardados en la app.</p>';
+    return `
+      <details class="wk" data-wk="${w.id}"${openGymWeeks.has(w.id) ? ' open' : ''}>
         <summary>
-          <div class="h-main"><p class="h-day">${esc(h.dayTitle)}</p><p class="h-date">${esc(fmtShortDate(h.date))}</p></div>
-          <p class="h-meta">${h.setsDone}/${h.setsTotal} series${h.volume ? `<br>${formatNumber(h.volume)} kg` : ''}</p>
+          <div class="wk-main"><p class="wk-title">${esc(w.label)}</p><p class="wk-range">${esc(w.range)}</p></div>
+          <div class="wk-side"><span class="status-pill${active ? ' status-completado' : ''}">${active ? 'Vigente' : 'Cerrada'}</span><span class="wk-meta">${days}/${total} días</span></div>
         </summary>
-        <div class="hrow-body">
-          ${exHTML}
-          <button type="button" class="entry-delete" data-hist-delete="${esc(h.id)}">Eliminar entrenamiento</button>
-        </div>
+        <div class="wk-body">${body}</div>
       </details>`;
   }).join('');
-  gymHistory.innerHTML = `<div class="hist">${rows}</div>${items.length > 20 ? `<p class="hint">Mostrando los últimos 20 de ${items.length}.</p>` : ''}`;
+  gymHistory.innerHTML = `<div class="wk-list">${html}</div>`;
 }
+
+gymHistory.addEventListener('toggle', evt => {
+  const d = evt.target;
+  if (!d.matches || !d.matches('details.wk')) return;
+  if (d.open) openGymWeeks.add(d.dataset.wk);
+  else openGymWeeks.delete(d.dataset.wk);
+}, true);
 
 gymHistory.addEventListener('click', evt => {
   const btn = evt.target.closest('[data-hist-delete]');

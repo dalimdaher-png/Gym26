@@ -572,3 +572,57 @@ input:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color:
 }
 
 .stat strong small { font-size: 0.8rem; font-weight: 700; color: var(--muted); }
+
+/* ---------- Kilos por lado de la barra ---------- */
+
+.gset-sides { display: grid; gap: 6px; }
+.gset-side {
+  font-size: 0.84rem; line-height: 1.35; color: var(--text);
+  padding: 7px 10px; border-radius: var(--r-sm);
+  background: var(--surface-3);
+  overflow-wrap: anywhere;
+}
+.gset-side.is-real { background: var(--ok-soft); }
+.side-tag {
+  display: inline-block; margin-right: 4px;
+  font-size: 0.66rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--accent);
+}
+.gset-side.is-real .side-tag { color: var(--ok); }
+
+/* ---------- Intensidad 1–10 ---------- */
+
+.gx-int { display: grid; gap: 8px; padding-top: 4px; border-top: 1px solid var(--hair); }
+.gx-int-label {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding-top: 10px;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--faint);
+}
+.gx-int-label strong { font-size: 0.9rem; letter-spacing: 0; text-transform: none; color: var(--text); font-variant-numeric: tabular-nums; }
+.int-scale { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.int-btn {
+  min-height: 44px; border-radius: var(--r-sm);
+  background: var(--surface-2); border: 1px solid var(--hair);
+  color: var(--muted); font-weight: 800; font-size: 1rem; font-variant-numeric: tabular-nums;
+}
+.int-btn.is-on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+/* ---------- Historial por semana ---------- */
+
+.wk-list { display: grid; gap: 10px; }
+.wk { background: var(--surface); border: 1px solid var(--hair); border-radius: var(--r-md); }
+.wk > summary {
+  list-style: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  min-height: 60px; padding: 10px 14px;
+}
+.wk > summary::-webkit-details-marker { display: none; }
+.wk-title { font-weight: 800; }
+.wk-range { color: var(--muted); font-size: 0.82rem; }
+.wk-side { display: grid; justify-items: end; gap: 4px; }
+.wk-meta { color: var(--muted); font-size: 0.82rem; font-variant-numeric: tabular-nums; }
+.wk-body { padding: 0 10px 12px; display: grid; gap: 8px; }
+.wk-body .empty { padding: 4px 4px 0; }
+.hrow-static { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; padding: 10px 14px; }
+.status-no-realizado { background: var(--warn-soft); color: var(--warn); }
+.h-day .status-pill { margin-left: 6px; vertical-align: middle; }

@@ -28,6 +28,8 @@
   --warn: #ffc857;
   --warn-soft: rgba(255, 200, 87, 0.14);
   --danger: #ff6b8b;
+  --mob: #6fd6e3;
+  --mob-soft: rgba(111, 214, 227, 0.13);
 
   --r-lg: 18px;
   --r-md: 14px;
@@ -626,3 +628,65 @@ input:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color:
 .hrow-static { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; padding: 10px 14px; }
 .status-no-realizado { background: var(--warn-soft); color: var(--warn); }
 .h-day .status-pill { margin-left: 6px; vertical-align: middle; }
+
+/* ---------- Movilidad y activación (bloque A) vs fuerza ---------- */
+
+.gx.gx-mob { background: linear-gradient(var(--mob-soft), var(--mob-soft)), var(--surface); border-color: rgba(111, 214, 227, 0.22); border-left: 3px solid var(--mob); }
+.gx.gx-mob.is-complete { border-color: rgba(166, 224, 122, 0.4); border-left-color: var(--ok); }
+.gx-mob .gx-code { background: var(--mob-soft); color: var(--mob); }
+.mob-tag {
+  display: inline-block; margin-bottom: 2px;
+  font-size: 0.66rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--mob);
+}
+.grp-mob .grp-letter { background: var(--mob); }
+
+/* ---------- Evolución de cargas por ejercicio ---------- */
+
+.gx-evo { background: var(--surface-2); border-radius: var(--r-sm); }
+.gx-evo > summary {
+  list-style: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  min-height: 44px; padding: 8px 10px;
+  font-size: 0.85rem; color: var(--muted);
+}
+.gx-evo > summary::-webkit-details-marker { display: none; }
+.gx-evo-head strong { color: var(--text); }
+.gx-evo-btn {
+  flex-shrink: 0;
+  padding: 3px 10px; border-radius: 999px;
+  background: var(--accent-soft); color: var(--accent);
+  font-size: 0.75rem; font-weight: 800;
+}
+.gx-evo[open] .gx-evo-btn { background: var(--accent); color: var(--accent-ink); }
+.gx-evo > .hint { padding: 0 10px 10px; font-size: 0.8rem; }
+.evo-list { list-style: none; display: grid; padding: 0 10px 8px; }
+.evo-list li { display: grid; grid-template-columns: 76px 1fr; gap: 10px; padding: 8px 0; border-top: 1px solid var(--hair); font-size: 0.85rem; }
+.evo-when { font-weight: 700; font-variant-numeric: tabular-nums; }
+.evo-when small, .evo-sets small { display: block; color: var(--faint); font-size: 0.72rem; font-weight: 600; }
+.evo-sets { min-width: 0; overflow-wrap: anywhere; }
+.evo-sets strong { font-weight: 700; }
+.evo-sets .evo-note { color: var(--muted); font-style: italic; }
+
+/* ---------- Observaciones personales ---------- */
+
+.gx-obs > summary {
+  list-style: none; cursor: pointer;
+  display: flex; align-items: center; gap: 6px;
+  min-height: 40px;
+  color: var(--muted); font-size: 0.85rem; font-weight: 700;
+}
+.gx-obs > summary::-webkit-details-marker { display: none; }
+.gx-obs > summary .icon { width: 14px; height: 14px; }
+.gx-obs > summary span { color: var(--faint); font-weight: 600; }
+.gx-obs textarea {
+  width: 100%; min-height: 64px; resize: vertical;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--hair-strong);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font: inherit; font-size: 16px; line-height: 1.4;
+}
+.gx-obs textarea:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: transparent; }
+.hist-ex .hist-note { color: var(--muted); font-style: italic; }

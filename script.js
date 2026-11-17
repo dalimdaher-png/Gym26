@@ -1,28 +1,47 @@
 const STORAGE_KEY = 'dark-gym-planner-v1';
 
 const RUNNING_WEEKLY_GOAL_KM = 21;
-const GYM_ROUTINE_ID = 'entrenamiento-dali-2026-10-10';
+// Rutina vigente: "Rutina 1 - Semana 1 - 16-11-2026" de Juan Pablo.
+const GYM_ROUTINE_ID = 'juan-pablo-rutina-1-2026-11-16';
+// Rutina anterior ("Entrenamiento Dali", Semanas 1 a 3). Sus entrenamientos guardados conservan este id.
+const PREV_ROUTINE_ID = 'entrenamiento-dali-2026-10-10';
 // Revisión de la rutina del entrenador. Al cambiar, se migran las cargas guardadas (ver normalizeState).
-const GYM_ROUTINE_REV = 'semana-3-2026-10-26';
+const GYM_ROUTINE_REV = 'rutina-1-semana-1-2026-11-16';
 
 /* Semanas de la rutina. La vigente es la primera. Las demás quedan cerradas: se pueden consultar pero ya no se les cargan entrenamientos.
-   Los entrenamientos viejos (sin weekId) se ubican por fecha. */
+   optional: solo aparece en el historial si tiene entrenamientos (la app no tuvo cargada esa semana de la planilla).
+   Los entrenamientos se ubican en la semana en que se hicieron (ver weekIdOf). */
 const GYM_WEEKS = [
+  { id: 'r1s1', label: 'Rutina 1 · Semana 1', range: '16 – 22 nov', start: '2026-11-16', end: '2026-11-22' },
+  { id: 's4', label: 'Semana 4', range: '2 – 8 nov', start: '2026-11-02', end: '2026-11-08', optional: true },
   { id: 's3', label: 'Semana 3', range: '26 oct – 1 nov', start: '2026-10-26', end: '2026-11-01' },
   { id: 's2', label: 'Semana 2', range: '19 – 25 oct', start: '2026-10-19', end: '2026-10-25' },
   { id: 's1', label: 'Semana 1', range: 'hasta el 18 oct', start: '', end: '2026-10-18' },
 ];
 const ACTIVE_WEEK = GYM_WEEKS[0];
+// Semana con la que cerró la rutina anterior (la app la tuvo cargada hasta el 15 nov).
+const PREV_WEEK_ID = 's3';
 const BAR_KG = 20; // barra olímpica (la planilla cuenta siempre la barra)
 
 function weekIdOfDate(date) {
-  if (date >= GYM_WEEKS[0].start) return GYM_WEEKS[0].id;
-  if (date >= GYM_WEEKS[1].start) return GYM_WEEKS[1].id;
-  return GYM_WEEKS[2].id;
+  const w = GYM_WEEKS.find(x => (!x.start || date >= x.start) && (!x.end || date <= x.end));
+  return w ? w.id : '';
 }
 
+// Semana de calendario (lunes) para los entrenamientos que caen en semanas que la app no tenía definidas (ej. 9–15 nov).
+function calWeekId(date) {
+  return isValidISODate(date) ? `cal-${toISODate(mondayOf(parseISODate(date)))}` : 'cal-sin-fecha';
+}
+
+/* Semana del historial en la que se muestra un entrenamiento. No modifica el registro.
+   - Se respeta la semana guardada (weekId), salvo que la fecha sea posterior al fin de esa semana:
+     la app siguió con la rutina de la Semana 3 hasta el 15 nov, y esos entrenamientos van a la semana en que se hicieron.
+   - Sin weekId: por fecha. */
 function weekIdOf(h) {
-  return h && h.weekId ? h.weekId : weekIdOfDate(String(h && h.date || ''));
+  const date = String(h && h.date || '');
+  const own = h && h.weekId ? GYM_WEEKS.find(w => w.id === h.weekId) : null;
+  if (own && !(own.end && date > own.end)) return own.id;
+  return weekIdOfDate(date) || calWeekId(date);
 }
 // Pesos de la revisión anterior (16/10), para distinguir cargas editadas por vos de cargas que solo se "confirmaron".
 const PREV_WEIGHTS = {"d1-a4:0":"10 kg","d1-b1:0":"120 kg","d1-b1:1":"120 kg","d1-b1:2":"120 kg","d1-b2:0":"14 o 16 kg x lado","d1-b2:1":"14 o 16 kg x lado","d1-b2:2":"14 o 16 kg x lado","d1-b3:0":"50","d1-b3:1":"50","d1-b3:2":"50","d1-c1:0":"30-40","d1-c1:1":"30-40","d2-b2:0":"30","d2-b2:1":"30","d2-b2:2":"30","d2-b3:0":"16-18","d2-b3:1":"16-18","d2-c1:0":"7 kg","d2-c1:1":"7 kg","d2-c1:2":"7 kg","d2-c2:0":"5 o 6","d2-c2:1":"5 o 6","d2-c2:2":"5 o 6","d2-c3:0":"15","d2-c3:1":"15","d2-d1:0":"15 - 17,5","d2-d1:1":"15 - 17,5","d2-d1:2":"15 - 17,5","d3-a4:0":"10 kg","d3-b1:0":"20","d3-b1:1":"30","d3-b1:2":"45","d3-b1:3":"45","d3-b1:4":"45","d3-b2:0":"10 kg x lado","d3-b2:1":"10 kg x lado","d3-b2:2":"10 kg x lado","d3-b3:0":"60-70","d3-b3:1":"60-70","d3-b3:2":"60-70","d3-c1:0":"40-50","d3-c1:1":"40-50","d3-c1:2":"40-50","d3-c3:0":"25-35","d3-c3:1":"25-35","d3-c3:2":"25-35","d3-d1:0":"BW","d3-d1:1":"BW","d3-d1:2":"BW","d4-a4:0":"10 kg","d4-b1:0":"30","d4-b1:1":"50","d4-b1:2":"60-70","d4-b1:3":"60-70","d4-b1:4":"60-70","d4-b2:0":"90 kg","d4-b2:1":"90 kg","d4-b2:2":"90 kg","d4-b2:3":"90 kg","d4-c1:0":"30-40","d4-c1:1":"30-40","d4-c1:2":"30-40"};
@@ -92,12 +111,16 @@ const LEGACY_AUGUST = [
 ];
 
 /* ============================================================
-   Nueva rutina de gimnasio activa: "Entrenamiento Dali"
-   Fuente: planilla de Google Drive del 10 oct 2026 (4 días).
-   - Los reps que Excel/Sheets había convertido en fechas
-     (6-8, 8-10, 10-12) se recuperaron como rangos de texto.
+   Rutinas de gimnasio de Juan Pablo (planilla "Entrenamiento Dali")
+   - GYM_ROUTINE: rutina vigente, "Rutina 1 - Semana 1 - 16-11-2026".
+   - PREV_ROUTINE: rutina anterior (Semana 3, 26 oct 2026), archivada.
+     Se conserva para mostrarla como referencia y para pasar al
+     historial las sesiones que quedaron a medias.
+   - Los ids de los ejercicios (d1-b1, d2-b3-maquina, ...) son los
+     mismos en las dos rutinas: así la evolución de cargas continúa.
    - Los pesos con "?" en la planilla son estimaciones: se
-     muestran como "Pendiente de confirmar".
+     muestran como "Sin confirmar". Peso vacío en la planilla:
+     queda para completar a mano.
    ============================================================ */
 const YT = 'https://www.youtube.com/watch?v=';
 const LINKS = {
@@ -134,9 +157,11 @@ function circuitoCadera(dayId, buenosDiasLink) {
   ];
 }
 
-const GYM_ROUTINE = {
-  id: GYM_ROUTINE_ID,
+// Rutina anterior (archivada). Vigente en la app del 26 oct al 15 nov 2026.
+const PREV_ROUTINE = {
+  id: PREV_ROUTINE_ID,
   name: 'Entrenamiento Dali · Semana 3',
+  period: 'vigente en la app del 26 oct al 15 nov',
   source: 'Planilla de Juan Pablo “Entrenamiento Dali”, Semana 3 (26 oct 2026)',
   days: [
     {
@@ -210,20 +235,114 @@ const GYM_ROUTINE = {
   ],
 };
 
-const EX_INDEX = {};
-GYM_ROUTINE.days.forEach(day => {
-  day.exercises.forEach(ex => {
-    let idx = 0;
-    ex.baseSets = [];
-    ex.sets.forEach(block => {
-      for (let i = 0; i < block.n; i += 1) {
-        ex.baseSets.push({ id: `${ex.id}:${idx}`, kind: block.kind, reps: block.reps, rest: block.rest, weight: block.weight, est: block.est });
-        idx += 1;
-      }
+/* Rutina vigente. Fuente: pestaña "Rutina 1 - Semana 1 - 16-11-2026".
+   - Orden, series, repeticiones, descansos, pesos, aclaraciones y links tal como están en la planilla.
+   - Los números sueltos debajo de los bloques A ("1" y "2") son las vueltas de los ejercicios sin series propias.
+   - Sentadilla (Día 3) y peso muerto (Día 4): las filas livianas con 60" de descanso son aproximación.
+   - El Día 4 figura como "Piernas II" en la planilla; en la app se llama "Piernas III" para diferenciarlo del Día 3. */
+const GYM_ROUTINE = {
+  id: GYM_ROUTINE_ID,
+  name: 'Rutina 1 · Semana 1',
+  source: 'Planilla de Juan Pablo “Entrenamiento Dali”, pestaña “Rutina 1 - Semana 1 - 16-11-2026”',
+  days: [
+    {
+      id: 'd1', title: 'Día 1 - Pierna I', focus: 'Glúteos e isquios',
+      exercises: [
+        ...circuitoCadera('d1', null),
+        X('d1', 'B1', 'Hip Thrust', { trackWeight: true, bar: { mode: 'total', kg: BAR_KG }, sets: [S(3, '6-8', '120-180"', '90 kg')],
+          allowApproach: { weight: '60 - 80 kg' },
+          note: 'hace unas series antes de aproximacion con 60 - 80 kg - a partir de ahora empezamos a contar siempre la barra' }),
+        X('d1', 'B2', 'Estocadas búlgaras', { trackWeight: true, bar: { mode: 'discs' }, sets: [S(2, '8-10', '120-180"', '15 kg + barra')] }),
+        X('d1', 'B3', 'Peso muerto rumano', { trackWeight: true, bar: { mode: 'total', kg: BAR_KG }, sets: [S(3, '8-10', '120-180"', '40 kg')] }),
+        X('d1', 'C1', 'Isquios en máquina', { trackWeight: true, sets: [S(2, '8-10', '60-90"', '25 kg')],
+          note: 'Si te duele detrás de la rodilla, cortá antes el movimiento o bajá más el peso.' }),
+        X('d1', 'C2', 'Abductores en polea', { trackWeight: true, sets: [S(2, '10', '60-90"', '10 por pierna')] }),
+        X('d1', 'C3', 'Pata de glúteo en polea', { trackWeight: true, sets: [S(2, '12-15', '60-90"', '15 kg')] }),
+      ],
+    },
+    {
+      id: 'd2', title: 'Día 2 - Superior I', focus: 'Espalda, hombros y tríceps',
+      exercises: [
+        X('d2', 'A1', 'Movilidad general', { seriesLabel: '1 de cada uno', checkOnly: true, sets: [S(1, '10 x lado', 'mínimo')], links: [lnk('Video', LINKS.movilidad)] }),
+        X('d2', 'A2', 'Protocolo de muñecas', { checkOnly: true, sets: [S(1, '10 c/u')], links: [lnk('Video', LINKS.munecas)],
+          note: 'Los protocolos de movilidad son para articulaciones específicas. A las muñecas hay que darle mucha importancia, porque es la parte más débil en general y muchas veces vamos a llevar el peso del cuerpo sobre esa base - haciendo estos movimientos se va fortaleciendo y mejorando los rangos de movimiento. Seguir el vídeo aunque sea una vez y después lo vas haciendo solo las próximas veces.' }),
+        X('d2', 'A3', 'Protocolo de hombros', { checkOnly: true, sets: [S(1, '1 vuelta')], links: [lnk('Video', LINKS.hombros)],
+          note: 'Seguir el video con los ejercicios y repetiicones indicadas -' }),
+        X('d2', 'A4', 'Cat-cow', { checkOnly: true, sets: [S(1, '10')] }),
+        X('d2', 'A5', 'Activaciones escapulares en plancha alta', { checkOnly: true, sets: [S(2, '8')],
+          links: [lnk('Video 1', LINKS.escapularPlancha1), lnk('Video 2', LINKS.escapularPlancha2)],
+          note: 'Estas activaciones vamos a hacerlas con un rango amplio -  la idea es "despegar" las escapulas, a fuerza de repetir el movimiento, así que no debe ser algo "cansador" - podes hacerlo arrodillado igual que en las flexiones para disminuirle díficultad.-' }),
+        X('d2', 'A6', 'Activaciones escapulares simples en barra', { checkOnly: true, sets: [S(2, '8', '60-90"')], links: [lnk('Video', LINKS.escapularBarra)],
+          note: 'La idea es hacer una activación escapular en retracción y depresión (cerrando y bajando) las escapulas, pero manteniendote colgado siempre - los codos quedan bloqueados y el movimiento es solo de escapulas!' }),
+        X('d2', 'A7', 'Plancha alta', { sets: [S(2, '20"')], links: [lnk('Video', LINKS.planchaAlta)],
+          note: 'Siguiendo los gestos practicados en A5- y A6, vamos a incorporarlo en una posicion completa - la idea sería poder dejar las escapulas abiertas (protracción) y la pelvis "cerrada" (en retroversión) - El resto de la técnica consiste en posicionar las manos a la altura de los hombros, mantener alineadas la cadera con los hombros, y apretar muy fuerte todos los musculos implicados (abdominales, gluteos, cuadriceps, triceps) para ejercer la mayor tensión posible. Este ejercicio bien hecho debería ejercer muchisima tensión.' }),
+        X('d2', 'B1', 'Dominadas negativas', { sets: [S(3, '2', '60-90"')], links: [lnk('Video', LINKS.dominadasNegativas)],
+          note: '3-5" de bajada - marca arriba antes de subir, quedate 1 o 2" bien solida antes de empezar a bajar.' }),
+        X('d2', 'B2', 'Tirones en polea', { trackWeight: true, sets: [S(3, '8-10', '60-90"', '32,5 kg')] }),
+        X('d2', 'B3', 'Remo en máquina', { id: 'd2-b3-maquina', trackWeight: true, sets: [S(2, '8-10', '60-90"', '25 kg')] }),
+        X('d2', 'C1', 'Press militar con mancuernas', { trackWeight: true, sets: [S(3, '8-10', '60-90"', '9 kg')] }),
+        X('d2', 'C2', 'Vuelos laterales', { trackWeight: true, sets: [S(3, '10-12', '60-90"', '8 kg')] }),
+        X('d2', 'C3', 'Face pull', { trackWeight: true, sets: [S(2, '10-12', '60-90"', '17,5 kg')] }),
+        X('d2', 'D1', 'Tríceps en polea descendente', { trackWeight: true, sets: [S(3, '10-12', '60-90"', '15 kg')] }),
+      ],
+    },
+    {
+      id: 'd3', title: 'Día 3 - Piernas II', focus: 'Cuádriceps',
+      exercises: [
+        ...circuitoCadera('d3', null),
+        X('d3', 'B1', 'Sentadilla', { trackWeight: true, bar: { mode: 'total', kg: BAR_KG },
+          sets: [AP(1, '10', '60"', '20 kg'), AP(1, '6', '60"', '30 kg'), S(3, '6', '120-180"', '67,5 kg')],
+          note: 'Empezamos a escalar las sentadillas para usar rangos mas bajos de repes y mas pesados - subi a 45 porque ya haces 10 con 40 para empzar a estimar -' }),
+        X('d3', 'B2', 'Sentadilla en smith enfoque cuádriceps', { trackWeight: true, bar: { mode: 'side' }, sets: [S(3, '8-10', '90-120"', '18,75 kg x lado')] }),
+        X('d3', 'B3', 'Prensa', { trackWeight: true, sets: [S(3, '8-10', '90-120"', '90 kg')] }),
+        X('d3', 'C1', 'Cuádriceps en máquina', { trackWeight: true, sets: [S(3, '10-12', '60-90"', '50 kg')] }),
+        X('d3', 'C3', 'Aductores', { trackWeight: true, sets: [S(3, '12-15', '60-90"', '45 kg')] }),
+        X('d3', 'D1', 'Elevaciones de rodilla', { trackWeight: true, sets: [S(3, '8-10', '60-90"', 'BW')], note: 'BW = peso corporal' }),
+      ],
+    },
+    {
+      id: 'd4', title: 'Día 4 - Piernas III', focus: 'Peso muerto y glúteos',
+      exercises: [
+        ...circuitoCadera('d4', LINKS.buenosDias),
+        X('d4', 'B1', 'Peso muerto convencional', { trackWeight: true, bar: { mode: 'total', kg: BAR_KG },
+          sets: [AP(1, '5', '60"', '30 kg'), AP(1, '3', '60"', '50 kg'), S(3, '5', '120-180"', '62,5 kg')] }),
+        X('d4', 'B2', 'Hip thrust', { trackWeight: true, bar: { mode: 'total', kg: BAR_KG }, sets: [S(4, '10-12', '120-180"', '100 kg')],
+          note: 'Probamos con este peso para arrancar, puede ser 100 también si 90 es muy fácil. Y hacerlas lentas' }),
+        X('d4', 'C1', 'Isquios en máquina', { trackWeight: true, sets: [S(3, '10-12', '60-90"', '35 kg')] }),
+        X('d4', 'C2', 'Abductores en polea', { trackWeight: true, sets: [S(2, '10-12', '60-90"', '')] }),
+        X('d4', 'C3', 'Pata de glúteo en polea', { trackWeight: true, sets: [S(2, '15-20', '60-90"', '20 kg')] }),
+      ],
+    },
+  ],
+};
+
+/* Bloque A = movilidad y activación (se ven distinto de los ejercicios de fuerza). */
+function mobilityKind(ex) {
+  if (ex.code.charAt(0) !== 'A') return '';
+  return /movilidad|protocolo|cat-cow/i.test(ex.name) ? 'Movilidad' : 'Activación';
+}
+
+function prepareRoutine(routine, index) {
+  routine.days.forEach(day => {
+    day.exercises.forEach(ex => {
+      let idx = 0;
+      ex.baseSets = [];
+      ex.sets.forEach(block => {
+        for (let i = 0; i < block.n; i += 1) {
+          ex.baseSets.push({ id: `${ex.id}:${idx}`, kind: block.kind, reps: block.reps, rest: block.rest, weight: block.weight, est: block.est });
+          idx += 1;
+        }
+      });
+      ex.mob = mobilityKind(ex);
+      index[ex.id] = ex;
     });
-    EX_INDEX[ex.id] = ex;
   });
-});
+}
+
+const EX_INDEX = {};
+const PREV_EX_INDEX = {};
+prepareRoutine(GYM_ROUTINE, EX_INDEX);
+prepareRoutine(PREV_ROUTINE, PREV_EX_INDEX);
 
 /* ============================================================
    Estado
@@ -366,34 +485,50 @@ function migrateGymLoads(gym) {
   gym.rev = GYM_ROUTINE_REV;
 }
 
-/* Cambio de semana (Semana 2 → Semana 3). Nada se borra:
-   - Las sesiones que quedaron a medias pasan al historial de la Semana 2.
-   - Las cargas que habías editado y confirmado quedan guardadas en weekArchive.s2, y la Semana 3 arranca con los pesos de Juan Pablo.
-   - El Día 4 de la Semana 2 queda marcado como no realizado (si no tiene ningún entrenamiento guardado).
-   Corre una sola vez (gym.week). */
+/* Cambios de semana. Nada se borra y los registros guardados no se modifican: solo se agregan.
+   Corre una sola vez por cambio (gym.week guarda la última semana aplicada). */
 function migrateGymWeek(gym) {
   if (!gym.weekArchive || typeof gym.weekArchive !== 'object') gym.weekArchive = {};
   if (gym.week === ACTIVE_WEEK.id) return;
-  const closing = GYM_WEEKS[1];
+  if (gym.week !== PREV_WEEK_ID) migrateWeekS2toS3(gym);
+  migrateToRutina1(gym);
+  gym.history.sort(compareHistory);
+  gym.week = ACTIVE_WEEK.id;
+  gym.rev = GYM_ROUTINE_REV;
+}
+
+// Pasa al historial las sesiones a medias, armadas con la rutina con la que se cargaron.
+function closeOpenSessions(gym, routine, weekId, clampDate) {
   Object.keys(gym.current).forEach(dayId => {
-    const day = GYM_ROUTINE.days.find(d => d.id === dayId);
+    const day = routine.days.find(d => d.id === dayId);
     const sess = gym.current[dayId];
     if (!day || !sess) return;
-    let date = String(sess.startedAt || '').slice(0, 10);
-    if (!isValidISODate(date) || date > closing.end) date = closing.end;
-    if (date < closing.start) date = closing.start;
-    const entry = buildHistoryEntry(day, sess, gym, date, { weekId: closing.id, partial: true });
+    const date = clampDate(String(sess.startedAt || '').slice(0, 10));
+    const entry = buildHistoryEntry(day, sess, gym, date, { routineId: routine.id, weekId, partial: true });
     if (entry) gym.history.push(entry);
   });
   gym.current = {};
+}
+
+/* Semana 2 → Semana 3 (26 oct). Solo corre en datos que nunca abrieron la versión de la Semana 3.
+   - Las sesiones a medias pasan al historial de la Semana 2.
+   - Las cargas editadas y confirmadas quedan en weekArchive.s2.
+   - El Día 4 de la Semana 2 queda como no realizado (si no tiene ningún entrenamiento guardado). */
+function migrateWeekS2toS3(gym) {
+  const closing = GYM_WEEKS.find(w => w.id === 's2');
+  closeOpenSessions(gym, PREV_ROUTINE, closing.id, date => {
+    let d = isValidISODate(date) && date <= closing.end ? date : closing.end;
+    if (d < closing.start) d = closing.start;
+    return d;
+  });
   if (!gym.weekArchive[closing.id]) gym.weekArchive[closing.id] = { loads: gym.loads, confirmed: gym.confirmed };
   gym.loads = {};
   gym.confirmed = {};
-  const day4 = GYM_ROUTINE.days.find(d => d.id === 'd4');
+  const day4 = PREV_ROUTINE.days.find(d => d.id === 'd4');
   if (day4 && !gym.history.some(h => h.dayId === 'd4' && weekIdOf(h) === closing.id)) {
     gym.history.push({
       id: `${closing.id}-d4-no-realizado`,
-      routineId: GYM_ROUTINE_ID,
+      routineId: PREV_ROUTINE_ID,
       weekId: closing.id,
       status: 'no_realizado',
       dayId: 'd4',
@@ -406,9 +541,25 @@ function migrateGymWeek(gym) {
       exercises: [],
     });
   }
-  gym.history.sort(compareHistory);
-  gym.week = ACTIVE_WEEK.id;
-  gym.rev = GYM_ROUTINE_REV;
+  gym.week = PREV_WEEK_ID;
+}
+
+/* Rutina anterior (Semana 3, cargada en la app hasta el 15 nov) → Rutina 1 · Semana 1 (16 nov).
+   - Las sesiones a medias pasan al historial como "Incompleto", con la fecha en que se empezaron.
+   - Las cargas que habías editado o confirmado quedan guardadas en weekArchive.s3; la Rutina 1 arranca con los pesos de Juan Pablo.
+   - No se marca ningún día como no realizado. */
+function migrateToRutina1(gym) {
+  const today = toISODate(new Date());
+  const prevWeek = GYM_WEEKS.find(w => w.id === PREV_WEEK_ID);
+  closeOpenSessions(gym, PREV_ROUTINE, PREV_WEEK_ID, date => {
+    let d = isValidISODate(date) ? date : today;
+    if (d > today) d = today;
+    if (d < prevWeek.start) d = prevWeek.start;
+    return d;
+  });
+  if (!gym.weekArchive[PREV_WEEK_ID]) gym.weekArchive[PREV_WEEK_ID] = { loads: gym.loads, confirmed: gym.confirmed };
+  gym.loads = {};
+  gym.confirmed = {};
 }
 
 function compareHistory(a, b) {
@@ -927,13 +1078,14 @@ function getGymDay(id) {
 function getSession(dayId, create) {
   let sess = state.gym.current[dayId];
   if (!sess && create) {
-    sess = { startedAt: new Date().toISOString(), sets: {}, extra: {}, intensity: {} };
+    sess = { startedAt: new Date().toISOString(), sets: {}, extra: {}, intensity: {}, notes: {} };
     state.gym.current[dayId] = sess;
   }
   if (sess) {
     if (!sess.sets) sess.sets = {};
     if (!sess.extra) sess.extra = {};
     if (!sess.intensity) sess.intensity = {};
+    if (!sess.notes) sess.notes = {};
   }
   return sess || null;
 }
@@ -1053,19 +1205,61 @@ function compareSets(a, b) {
   return (repsNum(a.reps) || 0) - (repsNum(b.reps) || 0);
 }
 
+/* Última marca, mejor marca y evolución de un ejercicio, a partir del historial (de más nuevo a más viejo).
+   El ejercicio se reconoce por su id, que es el mismo en la rutina anterior y en la vigente. */
 function exerciseProgress(exId) {
   let last = null;
   let best = null;
+  const list = [];
   state.gym.history.forEach(sessionItem => {
+    if (sessionItem.status === 'no_realizado') return;
     const rec = (sessionItem.exercises || []).find(e => e.id === exId);
     if (!rec) return;
-    const eff = rec.sets.filter(s => s.kind === 'efectiva' && s.done);
-    if (!eff.length) return;
-    const top = eff.reduce((a, b) => (compareSets(b, a) > 0 ? b : a));
+    const eff = (rec.sets || []).filter(s => s.kind === 'efectiva' && s.done);
+    const top = eff.length ? eff.reduce((a, b) => (compareSets(b, a) > 0 ? b : a)) : null;
+    if (eff.length || rec.note) list.push({ date: sessionItem.date, weekId: weekIdOf(sessionItem), sets: eff, top, plan: top ? top.plan : '', intensity: rec.intensity, note: rec.note || '' });
+    if (!top) return;
     if (!last) last = { date: sessionItem.date, set: top };
     if (!best || compareSets(top, best.set) > 0) best = { date: sessionItem.date, set: top };
   });
-  return { last, best };
+  return { last, best, list };
+}
+
+function shortSet(s) {
+  const w = String(s.weight || '').trim();
+  const r = String(s.reps || '').trim();
+  const wText = w ? (num(w) !== null && /^[\d.,\s]+$/.test(w) ? `${w} kg` : w) : '';
+  if (wText && r) return `${wText} × ${r}`;
+  return wText || r || '✔';
+}
+
+function weekShortLabel(weekId) {
+  const w = GYM_WEEKS.find(x => x.id === weekId);
+  if (w) return w.label;
+  if (String(weekId).startsWith('cal-')) return `Semana del ${fmtShortDate(weekId.slice(4))}`;
+  return '';
+}
+
+function evolutionHTML(ex, prog) {
+  if (!prog.list.length) return '';
+  const head = prog.last
+    ? `Última vez (${esc(fmtShortDate(prog.last.date))}): <strong>${esc(fmtRecorded(prog.last.set, ex))}</strong>${prog.best ? ` · Mejor: <strong>${esc(fmtRecorded(prog.best.set, ex))}</strong>` : ''}`
+    : 'Sin series efectivas registradas';
+  const rows = prog.list.slice(0, 8).map(item => {
+    const sets = item.sets.length ? item.sets.map(shortSet).join(' · ') : '—';
+    const extra = [];
+    if (item.plan) extra.push(`plan ${item.plan}`);
+    if (item.intensity) extra.push(`intensidad ${item.intensity}/10`);
+    return `<li>
+        <span class="evo-when">${esc(fmtShortDate(item.date))}<small>${esc(weekShortLabel(item.weekId))}</small></span>
+        <span class="evo-sets"><strong>${esc(sets)}</strong>${extra.length ? `<small>${esc(extra.join(' · '))}</small>` : ''}${item.note ? `<small class="evo-note">“${esc(item.note)}”</small>` : ''}</span>
+      </li>`;
+  }).join('');
+  const more = prog.list.length > 8 ? `<p class="hint">Se muestran los últimos 8 de ${prog.list.length}. El resto está en el Historial.</p>` : '';
+  return `<details class="gx-evo">
+      <summary><span class="gx-evo-head">${head}</span><span class="gx-evo-btn">Evolución</span></summary>
+      <ol class="evo-list">${rows}</ol>${more}
+    </details>`;
 }
 
 function fmtShortDate(iso) {
@@ -1073,11 +1267,17 @@ function fmtShortDate(iso) {
   return fmtDM(parseISODate(iso));
 }
 
-const BLOCK_NAMES = { A: 'Activación', B: 'Principal', C: 'Complementarios', D: 'Final' };
+const BLOCK_NAMES = { A: 'Movilidad y activación', B: 'Fuerza · principal', C: 'Fuerza · complementarios', D: 'Fuerza · final' };
 
+// "Día 1 - Pierna I" + foco → { n: 'Día 1', name: 'Pierna I', full: 'Pierna I — Glúteos e isquios' }
 function dayParts(day) {
   const [n, ...rest] = day.title.split(' - ');
-  return { n, name: rest.join(' - ') };
+  const name = rest.join(' - ');
+  return { n, name, full: day.focus ? `${name} — ${day.focus}` : name };
+}
+
+function dayFullTitle(day) {
+  return day.focus ? `${day.title} — ${day.focus}` : day.title;
 }
 
 function exCounts(ex, sess) {
@@ -1117,10 +1317,11 @@ function pendingPillHTML(setId) {
 function loadCellHTML(set) {
   const plan = effectivePlan(set);
   const value = plan.text || '';
+  // Sin peso en la planilla: queda vacío para completarlo a mano (no se inventa).
   return `
     <div class="gset-field">
       <label>Plan${plan.pending ? pendingPillHTML(set.id) : ''}</label>
-      <input type="text" inputmode="decimal" autocomplete="off" data-gset="plan" data-set-id="${esc(set.id)}" value="${esc(value)}" placeholder="—" aria-label="Carga planificada de ${esc(set.label)}" />
+      <input type="text" inputmode="decimal" autocomplete="off" data-gset="plan" data-set-id="${esc(set.id)}" value="${esc(value)}" placeholder="${set.weight ? '—' : 'Completar'}" aria-label="Carga planificada de ${esc(set.label)}${set.weight ? '' : ' (la planilla no la indica)'}" />
     </div>`;
 }
 
@@ -1135,7 +1336,7 @@ function setRowHTML(ex, set, sess) {
     const repsField = `
       <div class="gset-field">
         <label>${timed ? 'Tiempo' : 'Reps'}</label>
-        <input type="text" inputmode="${timed ? 'text' : 'numeric'}" autocomplete="off" data-gset="reps" data-set-id="${esc(set.id)}" value="${esc(st.reps || '')}" placeholder="${esc(set.reps || '')}" aria-label="${timed ? 'Tiempo real' : 'Repeticiones reales'} de ${esc(set.label)}" />
+        <input type="text" inputmode="${timed ? 'text' : 'numeric'}" autocomplete="off" data-gset="reps" data-set-id="${esc(set.id)}" value="${esc(st.reps || '')}" placeholder="${esc(set.reps || 'Completar')}" aria-label="${timed ? 'Tiempo real' : 'Repeticiones reales'} de ${esc(set.label)}" />
       </div>`;
     if (ex.trackWeight) {
       fields = `<div class="gset-fields three">
@@ -1202,20 +1403,19 @@ function exerciseHTML(ex) {
       : `<p class="gx-note"><strong>Aclaración:</strong> ${esc(ex.note)}</p>`;
   }
   const prog = exerciseProgress(ex.id);
-  const progHTML = prog.last
-    ? `<p class="gx-progress">Última vez (${esc(fmtShortDate(prog.last.date))}): <strong>${esc(fmtRecorded(prog.last.set, ex))}</strong>${prog.best ? ` · Mejor: <strong>${esc(fmtRecorded(prog.best.set, ex))}</strong>` : ''}</p>`
-    : '';
+  const progHTML = evolutionHTML(ex, prog);
   const extraCount = sess && sess.extra[ex.id] ? sess.extra[ex.id] : 0;
   const approachControls = ex.allowApproach ? `
     <div class="gx-approach-actions">
       <button type="button" class="btn btn-ghost btn-small" data-gaction="add-approach" data-ex="${esc(ex.id)}">${icon('plus')} Serie de aproximación</button>
       ${extraCount ? `<button type="button" class="btn btn-ghost btn-small" data-gaction="remove-approach" data-ex="${esc(ex.id)}">Quitar última</button>` : ''}
     </div>` : '';
+  const mobTag = ex.mob ? `<span class="mob-tag">${esc(ex.mob)}</span>` : '';
   return `
-    <article class="gx card${counts.done === counts.total ? ' is-complete' : ''}" data-ex="${esc(ex.id)}">
+    <article class="gx card${ex.mob ? ' gx-mob' : ''}${counts.done === counts.total ? ' is-complete' : ''}" data-ex="${esc(ex.id)}">
       <div class="gx-head">
         <span class="gx-code">${esc(ex.code)}</span>
-        <div class="gx-title"><h4>${esc(ex.name)}</h4></div>
+        <div class="gx-title">${mobTag}<h4>${esc(ex.name)}</h4></div>
         <span class="gx-count" data-ex-count>${counts.done}/${counts.total}</span>
       </div>
       <div class="gx-meta">${exerciseMetaChips(ex)}</div>
@@ -1225,7 +1425,17 @@ function exerciseHTML(ex) {
       <div class="gx-sets">${sets.map(s => setRowHTML(ex, s, sess)).join('')}</div>
       ${approachControls}
       ${intensityHTML(ex, sess)}
+      ${notesFieldHTML(ex, sess)}
     </article>`;
+}
+
+/* Observaciones personales por ejercicio (como la columna "Anotaciones Dalila" de la planilla). Se guardan con el entrenamiento. */
+function notesFieldHTML(ex, sess) {
+  const value = sess && sess.notes ? String(sess.notes[ex.id] || '') : '';
+  return `<details class="gx-obs"${value.trim() ? ' open' : ''}>
+      <summary>${icon('pencil')} Mis observaciones${value.trim() ? '' : ' <span>(opcional)</span>'}</summary>
+      <textarea rows="2" data-gnote="${esc(ex.id)}" placeholder="Ej.: molestia, sensación, técnica" aria-label="Observaciones personales de ${esc(ex.name)}">${esc(value)}</textarea>
+    </details>`;
 }
 
 const RING_C = 169.65;
@@ -1297,11 +1507,11 @@ function renderGymDay() {
   gymDay.innerHTML = `
     <div class="day-stack" data-day="${esc(day.id)}">
       <div class="day-head">
-        <div><h3>${esc(parts.n)}</h3><p>${esc(parts.name)} · ${counts.total} series</p></div>
+        <div><h3>${esc(parts.n)}</h3><p>${esc(parts.full)} · ${counts.total} series</p></div>
         ${ringHTML(pct)}
       </div>
       ${groups.map(g => `
-        <section class="grp" aria-label="Bloque ${g.letter}">
+        <section class="grp${g.letter === 'A' ? ' grp-mob' : ''}" aria-label="Bloque ${g.letter}: ${esc(BLOCK_NAMES[g.letter] || '')}">
           <div class="grp-head"><span class="grp-letter">${g.letter}</span><span class="grp-name">${esc(BLOCK_NAMES[g.letter] || '')}</span></div>
           ${g.items.map(exerciseHTML).join('')}
         </section>`).join('')}
@@ -1416,6 +1626,20 @@ function refreshSideLine(row, ex, kind, text) {
   el.hidden = !html;
 }
 
+// Observaciones personales: se guardan mientras escribís.
+gymDay.addEventListener('input', evt => {
+  const t = evt.target;
+  const exId = t.dataset && t.dataset.gnote;
+  if (!exId) return;
+  const ex = EX_INDEX[exId];
+  if (!ex) return;
+  const sess = getSession(ex.dayId, true);
+  if (t.value.trim()) sess.notes[ex.id] = t.value;
+  else delete sess.notes[ex.id];
+  saveState();
+  updateDayProgress(ex.dayId);
+});
+
 gymDay.addEventListener('input', evt => {
   const t = evt.target;
   const kind = t.dataset && t.dataset.gset;
@@ -1427,6 +1651,7 @@ gymDay.addEventListener('input', evt => {
   if (!sess.sets[setId]) sess.sets[setId] = {};
   const st = sess.sets[setId];
   const hadData = String(st.weight || '').trim() !== '' || String(st.reps || '').trim() !== '';
+  const hadReps = String(st.reps || '').trim() !== '';
   st[kind] = t.value;
   if (kind === 'weight') refreshSideLine(t.closest('.gset'), ex, 'real', t.value);
   // Si empezás a cargar peso o repeticiones en una serie, se tilda sola (antes se perdía al finalizar si no la tildabas).
@@ -1439,9 +1664,10 @@ gymDay.addEventListener('input', evt => {
       if (box) box.checked = true;
     }
     updateDayProgress(ex.dayId);
-    // El descanso arranca al anotar las repeticiones (se anotan al terminar la serie), no al poner el peso.
-    if (kind === 'reps') maybeStartRest(ex, setOf(ex, setId));
   }
+  // El descanso arranca al anotar las repeticiones (se anotan al terminar la serie), no al poner el peso.
+  // También si el peso se cargó antes (antes, en ese caso, el temporizador no arrancaba).
+  if (kind === 'reps' && !hadReps && t.value.trim() !== '' && st.done) maybeStartRest(ex, setOf(ex, setId));
   saveState();
 });
 
@@ -1529,10 +1755,12 @@ function buildHistoryEntry(day, sess, gym, date, extra) {
       const n = repsNum(r.reps);
       if (w != null && n != null) volume += w * n;
     });
-    if (recorded.length) {
+    const note = String(sess.notes && sess.notes[ex.id] || '').trim();
+    if (recorded.length || note) {
       const rec = { id: ex.id, code: ex.code, name: ex.name, sets: recorded };
       const inten = Number(sess.intensity && sess.intensity[ex.id]) || 0;
       if (inten >= 1 && inten <= 10) rec.intensity = inten;
+      if (note) rec.note = note;
       exercises.push(rec);
     }
   });
@@ -1542,7 +1770,7 @@ function buildHistoryEntry(day, sess, gym, date, extra) {
     routineId: GYM_ROUTINE_ID,
     weekId: ACTIVE_WEEK.id,
     dayId: day.id,
-    dayTitle: day.title,
+    dayTitle: dayFullTitle(day),
     date,
     finishedAt: new Date().toISOString(),
     setsDone: done,
@@ -1560,7 +1788,7 @@ function finishSession(dayId) {
   const todayIso = toISODate(new Date());
   let date = dateInput && isValidISODate(dateInput.value) ? dateInput.value : todayIso;
   if (date > todayIso) date = todayIso;
-  // La Semana 2 está cerrada: los entrenamientos nuevos van a la semana vigente.
+  // Las semanas anteriores están cerradas: los entrenamientos nuevos van a la semana vigente.
   if (date < ACTIVE_WEEK.start) date = todayIso < ACTIVE_WEEK.start ? ACTIVE_WEEK.start : todayIso;
 
   const entry = buildHistoryEntry(day, sess, state.gym, date);
@@ -1591,7 +1819,7 @@ function renderGymOverview() {
   const next = suggestedDayId();
   const nextDay = next ? getGymDay(next) : null;
   const title = nextDay ? `Te toca: ${dayParts(nextDay).n}` : 'Semana completa';
-  const sub = nextDay ? `${dayParts(nextDay).name} · ${ACTIVE_WEEK.label} (${weekLabel(monday)})` : `Cerraste los ${total} días · ${ACTIVE_WEEK.label} (${weekLabel(monday)})`;
+  const sub = nextDay ? `${dayParts(nextDay).full} · ${ACTIVE_WEEK.label} (${weekLabel(monday)})` : `Cerraste los ${total} días · ${ACTIVE_WEEK.label} (${weekLabel(monday)})`;
   const pips = GYM_ROUTINE.days.map(d => `<span class="pip${doneThisWeek(d.id) ? ' on' : ''}"></span>`).join('');
   gymOverview.innerHTML = `
     <div class="week-hero card">
@@ -1604,13 +1832,20 @@ function renderGymOverview() {
         <div class="stat"><span>Series</span><strong>${sets}</strong></div>
         <div class="stat"><span>Volumen</span><strong>${formatNumber(volume)}<small> kg</small></strong></div>
       </div>
-      <p class="hint">${esc(GYM_ROUTINE.source)}. “Sin confirmar” marca las cargas que en la planilla tienen “?”. En los ejercicios con barra se ven los kilos por lado y el total.</p>
+      <p class="hint">${esc(GYM_ROUTINE.source)}. Donde la planilla no indica peso o repeticiones dice “Completar”: lo anotás vos. En los ejercicios con barra se ven los kilos por lado y el total.</p>
     </div>`;
 }
 
 const openGymWeeks = new Set([ACTIVE_WEEK.id]);
 
+function histExerciseOf(h, exId) {
+  const primary = h.routineId === GYM_ROUTINE_ID ? EX_INDEX : PREV_EX_INDEX;
+  return primary[exId] || EX_INDEX[exId] || PREV_EX_INDEX[exId];
+}
+
 function histRowHTML(h) {
+  // Entrenamiento hecho con la rutina anterior que cae en una semana de la Rutina 1.
+  const prevTag = h.routineId && h.routineId !== GYM_ROUTINE_ID && h.date >= ACTIVE_WEEK.start ? ' <span class="status-pill">Rutina anterior</span>' : '';
   if (h.status === 'no_realizado') {
     return `
       <div class="hrow hrow-static">
@@ -1619,41 +1854,79 @@ function histRowHTML(h) {
       </div>`;
   }
   const exHTML = (h.exercises || []).map(e => {
-    const ex = EX_INDEX[e.id];
+    const ex = histExerciseOf(h, e.id);
     const inten = e.intensity ? ` · intensidad ${e.intensity}/10` : '';
+    const sets = (e.sets || []).map(s => `${s.kind === 'aproximacion' ? '<em>aprox.</em> ' : ''}${esc(fmtRecorded(s, ex))}`).join(' · ');
     return `
       <div class="hist-ex"><strong>${esc(e.code)} ${esc(e.name)}</strong>
-        <span>${e.sets.map(s => `${s.kind === 'aproximacion' ? '<em>aprox.</em> ' : ''}${esc(fmtRecorded(s, ex))}`).join(' · ')}${esc(inten)}</span>
+        <span>${sets}${esc(inten)}</span>
+        ${e.note ? `<span class="hist-note">“${esc(e.note)}”</span>` : ''}
       </div>`;
   }).join('');
+  const partialWhy = h.weekId === 's2' ? 'al cerrar la Semana 2' : 'al pasar a la Rutina 1';
   return `
     <details class="hrow">
       <summary>
-        <div class="h-main"><p class="h-day">${esc(h.dayTitle)}${h.partial ? ' <span class="status-pill">Incompleto</span>' : ''}</p><p class="h-date">${esc(fmtShortDate(h.date))}</p></div>
+        <div class="h-main"><p class="h-day">${esc(h.dayTitle)}${h.partial ? ' <span class="status-pill">Incompleto</span>' : ''}${prevTag}</p><p class="h-date">${esc(fmtShortDate(h.date))}</p></div>
         <p class="h-meta">${h.setsDone}/${h.setsTotal} series${h.volume ? `<br>${formatNumber(h.volume)} kg` : ''}</p>
       </summary>
       <div class="hrow-body">
         ${exHTML}
-        ${h.partial ? '<p class="hint">Sesión que había quedado a medias al cerrar la Semana 2.</p>' : ''}
+        ${h.partial ? `<p class="hint">Sesión que había quedado a medias ${partialWhy}.</p>` : ''}
         <button type="button" class="entry-delete" data-hist-delete="${esc(h.id)}">Eliminar entrenamiento</button>
       </div>
     </details>`;
 }
 
+/* Semanas del historial: las definidas en GYM_WEEKS (las opcionales solo si tienen entrenamientos)
+   y, además, cualquier semana de calendario con entrenamientos que no esté definida (ej. 9–15 nov). */
+function historyGroups() {
+  const byWeek = new Map();
+  state.gym.history.forEach(h => {
+    const id = weekIdOf(h);
+    if (!byWeek.has(id)) byWeek.set(id, []);
+    byWeek.get(id).push(h);
+  });
+  const groups = GYM_WEEKS
+    .filter(w => !w.optional || byWeek.has(w.id))
+    .map(w => Object.assign({}, w, { items: byWeek.get(w.id) || [] }));
+  byWeek.forEach((items, id) => {
+    if (!id.startsWith('cal-')) return;
+    const iso = id.slice(4);
+    const monday = isValidISODate(iso) ? parseISODate(iso) : null;
+    groups.push({
+      id,
+      label: monday ? `Semana del ${fmtDM(monday)}` : 'Sin fecha',
+      range: monday ? weekLabel(monday) : '',
+      start: monday ? iso : '',
+      end: monday ? toISODate(addDays(monday, 6)) : '',
+      items,
+    });
+  });
+  // De la más nueva a la más vieja
+  groups.sort((a, b) => (a.start === b.start ? 0 : a.start < b.start ? 1 : -1));
+  return groups;
+}
+
 function renderGymHistory() {
   const total = GYM_ROUTINE.days.length;
-  const html = GYM_WEEKS.map(w => {
-    const items = state.gym.history.filter(h => weekIdOf(h) === w.id);
+  const prevWeek = GYM_WEEKS.find(w => w.id === PREV_WEEK_ID);
+  const html = historyGroups().map(w => {
+    const items = w.items;
     const days = new Set(items.filter(h => h.status !== 'no_realizado').map(h => h.dayId)).size;
     const active = w.id === ACTIVE_WEEK.id;
+    const after = !active && w.start > ACTIVE_WEEK.end;
+    // Semanas entre el fin de la Semana 3 y la Rutina 1: la app tenía cargada la rutina de la Semana 3.
+    const gap = w.start > prevWeek.end && w.start < ACTIVE_WEEK.start;
     const body = items.length
-      ? `<div class="hist">${items.map(histRowHTML).join('')}</div>`
+      ? `${gap ? '<p class="hint">En esta semana la app tenía cargada la rutina de la Semana 3.</p>' : ''}<div class="hist">${items.map(histRowHTML).join('')}</div>`
       : '<p class="empty">Sin entrenamientos guardados en la app.</p>';
+    const pill = active ? 'Vigente' : after ? 'Después de la rutina cargada' : 'Cerrada';
     return `
-      <details class="wk" data-wk="${w.id}"${openGymWeeks.has(w.id) ? ' open' : ''}>
+      <details class="wk" data-wk="${esc(w.id)}"${openGymWeeks.has(w.id) ? ' open' : ''}>
         <summary>
           <div class="wk-main"><p class="wk-title">${esc(w.label)}</p><p class="wk-range">${esc(w.range)}</p></div>
-          <div class="wk-side"><span class="status-pill${active ? ' status-completado' : ''}">${active ? 'Vigente' : 'Cerrada'}</span><span class="wk-meta">${days}/${total} días</span></div>
+          <div class="wk-side"><span class="status-pill${active ? ' status-completado' : ''}">${pill}</span><span class="wk-meta">${days}/${total} días</span></div>
         </summary>
         <div class="wk-body">${body}</div>
       </details>`;
@@ -1679,14 +1952,36 @@ gymHistory.addEventListener('click', evt => {
   });
 });
 
+// Resumen de un ejercicio de la rutina archivada: "2 aprox. + 3 × 6 · 65 kg"
+function routineExLine(ex) {
+  const ap = ex.baseSets.filter(s => s.kind === 'aproximacion');
+  const ef = ex.baseSets.filter(s => s.kind === 'efectiva');
+  const parts = [];
+  const reps = ef[0] && ef[0].reps;
+  const efText = reps ? `${ef.length} × ${reps}` : `${ef.length} ${ef.length === 1 ? 'serie' : 'series'}`;
+  const count = ex.seriesLabel || `${ap.length ? `${ap.length} aprox. + ` : ''}${efText}`;
+  parts.push(count);
+  const w = ef[0] && ef[0].weight;
+  if (w) parts.push(w);
+  return parts.join(' · ');
+}
+
 function renderGymLegacy() {
   const items = legacyEntries().filter(item => item.kind !== 'running');
   const oldWorkouts = LEGACY_GYM_IDS.map(id => WORKOUTS.find(w => w.id === id)).filter(Boolean);
   const wasOpen = gymLegacy.open;
+  const prevDays = PREV_ROUTINE.days.map(day => `
+        <div class="legacy-item">
+          <p class="legacy-item-title">${esc(day.title)}</p>
+          <ul class="compact">${day.exercises.map(ex => `<li>${esc(ex.code)} ${esc(ex.name)} — ${esc(routineExLine(ex))}</li>`).join('')}</ul>
+        </div>`).join('');
   gymLegacy.innerHTML = `
-    <summary>Rutina anterior (archivada)</summary>
-    <p class="hint">Ya no está activa. Se conserva como referencia junto con los entrenamientos de Agosto.</p>
+    <summary>Rutinas anteriores (archivadas)</summary>
+    <p class="hint">Ya no están activas. Se conservan como referencia; tus entrenamientos siguen en el Historial.</p>
     <div class="legacy-list">
+      <p class="legacy-sep">${esc(PREV_ROUTINE.name)} · ${esc(PREV_ROUTINE.period)}</p>
+      ${prevDays}
+      <p class="legacy-sep">Rutina de Agosto</p>
       ${oldWorkouts.map(w => `
         <div class="legacy-item">
           <p class="legacy-item-title">${esc(w.name)}</p>

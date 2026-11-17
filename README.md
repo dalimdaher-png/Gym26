@@ -1,6 +1,6 @@
 # Autodestrucción (Apoyo en la autodestrucción)
 
-Aplicación web estática para seguir tu rutina de gimnasio y el objetivo semanal de running.
+Aplicación web estática para seguir tu rutina de gimnasio.
 
 ## Estructura del proyecto
 
@@ -22,9 +22,9 @@ Aplicación web estática para seguir tu rutina de gimnasio y el objetivo semana
 
 ## Funcionalidades incluidas
 
-- Pantalla `Running`: un único objetivo de **21 km semanales** (semana de lunes a domingo, se reinicia cada lunes). Registro libre de km por día, con acumulado, restantes, % de cumplimiento, barra de progreso e historial de km por semana. Si superás los 21 km se sigue acumulando la distancia real. Sin días obligatorios, distancias fijas ni objetivos de ritmo. Conserva la card de referencia Garmin y el archivo de Agosto.
+- Pantalla `Running`: quitada el 17 nov 2026. Los km registrados siguen guardados en el navegador y en el respaldo (`running.entries`).
 - Pantalla `Rutinas`: rutina activa **Rutina 1 · Semana 1** (4 días, desde la pestaña “Rutina 1 - Semana 1 - 16-11-2026” de la planilla de Juan Pablo) con series de aproximación vs. efectivas, pesos estimados como "Pendiente de confirmar", aclaraciones y videos del entrenador, marcado de cada serie, peso y repeticiones reales, cargas editables, historial de entrenamientos y última/mejor marca por ejercicio. La rutina anterior queda archivada.
-- Card de referencia Garmin editable desde Ajustes → Datos Garmin (manual).
+- Datos Garmin editables desde Ajustes (manual).
 - Almacenamiento en `localStorage` (clave `dark-gym-planner-v1`): el historial anterior se conserva.
 
 ## Cómo publicar en GitHub Pages
@@ -73,3 +73,8 @@ Aplicación web estática para seguir tu rutina de gimnasio y el objetivo semana
 - Por ejercicio: evolución de cargas (últimos entrenamientos) y observaciones personales, que se guardan con cada entrenamiento.
 - Peso o repeticiones que la planilla no indica: el campo dice “Completar” y se carga a mano.
 - Para cargar la próxima semana: subir `GYM_ROUTINE_REV`, agregar la semana a `GYM_WEEKS`, ajustar `GYM_ROUTINE` y agregar el paso de migración en `migrateGymWeek`.
+
+## Sin pestaña Running (17 nov 2026)
+
+- La app queda con dos pestañas: Rutina y Ajustes.
+- No se borra ningún dato: los km registrados (`running.entries`) y el historial de Agosto siguen en `localStorage` y entran en el respaldo.

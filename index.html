@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Autodestrucción</title>
-  <meta name="description" content="Rutina de gimnasio con seguimiento por serie y objetivo semanal de running." />
+  <meta name="description" content="Rutina de gimnasio con seguimiento por serie." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=4" />
+  <link rel="stylesheet" href="styles.css?v=5" />
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icon-192.png" />
   <link rel="apple-touch-icon" href="icon-180.png" />
@@ -40,53 +40,6 @@
         </div>
       </section>
 
-      <!-- RUNNING -->
-      <section class="screen" id="screen-running" aria-labelledby="running-title">
-        <header class="mast">
-          <p class="kicker" id="running-range">—</p>
-          <h1 id="running-title">Running</h1>
-        </header>
-        <div class="page">
-          <div class="goal" id="running-goal"></div>
-
-          <section class="block" aria-labelledby="runlog-title">
-            <div class="block-head"><h2 id="runlog-title">Registrar kilómetros</h2></div>
-            <form class="runform" id="running-form" novalidate>
-              <div class="field">
-                <label for="running-date">Día</label>
-                <input id="running-date" type="date" required />
-              </div>
-              <div class="field">
-                <label for="running-km">Kilómetros</label>
-                <input id="running-km" type="text" inputmode="decimal" autocomplete="off" placeholder="Ej. 5,2" />
-              </div>
-              <button type="submit" class="btn btn-primary">Agregar</button>
-            </form>
-            <p class="form-error" id="running-error" role="alert" hidden></p>
-          </section>
-
-          <section class="block" aria-labelledby="week-title">
-            <div class="block-head"><h2 id="week-title">Esta semana</h2><span class="hint">lunes a domingo</span></div>
-            <div id="running-days"></div>
-          </section>
-
-          <section class="block" aria-labelledby="weeks-title">
-            <div class="block-head"><h2 id="weeks-title">Semanas</h2></div>
-            <div id="running-history"></div>
-          </section>
-
-          <section class="block" aria-labelledby="garmin-title">
-            <div class="block-head">
-              <h2 id="garmin-title">Referencia Garmin</h2>
-              <button type="button" class="btn btn-ghost btn-small" id="running-edit-garmin">Editar</button>
-            </div>
-            <div class="kv" id="running-garmin-mini"></div>
-          </section>
-
-          <details class="acc" id="running-archive" hidden></details>
-        </div>
-      </section>
-
       <!-- AJUSTES -->
       <section class="screen" id="screen-settings" aria-labelledby="settings-title">
         <header class="mast">
@@ -96,7 +49,7 @@
         <div class="page">
           <section class="block" aria-labelledby="gset-title">
             <div class="block-head"><h2 id="gset-title">Datos Garmin</h2></div>
-            <p class="hint">Alimentan la referencia de la pestaña Running. Actualizalos cuando cambien tus métricas.</p>
+            <p class="hint">Actualizalos cuando cambien tus métricas.</p>
             <div class="form-grid">
               <div class="field"><label for="garmin-manual-weight">Peso (kg)</label><input id="garmin-manual-weight" type="number" inputmode="decimal" step="0.1" min="0" /></div>
               <div class="field"><label for="garmin-manual-vo2">VO2 máx</label><input id="garmin-manual-vo2" type="number" inputmode="numeric" step="1" min="0" /></div>
@@ -145,12 +98,11 @@
 
     <nav class="tabbar" aria-label="Navegación principal">
       <button type="button" class="tab is-active" data-screen="screen-routines"><span data-icon="dumbbell"></span><span>Rutina</span></button>
-      <button type="button" class="tab" data-screen="screen-running"><span data-icon="route"></span><span>Running</span></button>
       <button type="button" class="tab" data-screen="screen-settings"><span data-icon="sliders"></span><span>Ajustes</span></button>
     </nav>
   </div>
 
-  <script src="icons.js?v=4"></script>
-  <script src="script.js?v=4"></script>
+  <script src="icons.js?v=5"></script>
+  <script src="script.js?v=5"></script>
 </body>
 </html>

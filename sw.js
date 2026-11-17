@@ -3,13 +3,13 @@
      la última copia guardada (útil en el gimnasio).
    - Tipografía de Google: se guarda para que funcione sin conexión. */
 
-const CACHE_NAME = 'autodestruccion-v4';
+const CACHE_NAME = 'autodestruccion-v5';
 const CORE = [
   './',
   './index.html',
-  './styles.css?v=4',
-  './icons.js?v=4',
-  './script.js?v=4',
+  './styles.css?v=5',
+  './icons.js?v=5',
+  './script.js?v=5',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',

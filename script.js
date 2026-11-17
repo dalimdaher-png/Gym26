@@ -1,6 +1,5 @@
 const STORAGE_KEY = 'dark-gym-planner-v1';
 
-const RUNNING_WEEKLY_GOAL_KM = 21;
 // Rutina vigente: "Rutina 1 - Semana 1 - 16-11-2026" de Juan Pablo.
 const GYM_ROUTINE_ID = 'juan-pablo-rutina-1-2026-11-16';
 // Rutina anterior ("Entrenamiento Dali", Semanas 1 a 3). Sus entrenamientos guardados conservan este id.
@@ -395,17 +394,6 @@ const gymDay = document.getElementById('gym-day');
 const gymHistory = document.getElementById('gym-history');
 const gymLegacy = document.getElementById('gym-legacy');
 
-const runningRange = document.getElementById('running-range');
-const runningGoal = document.getElementById('running-goal');
-const runningForm = document.getElementById('running-form');
-const runningDate = document.getElementById('running-date');
-const runningKm = document.getElementById('running-km');
-const runningError = document.getElementById('running-error');
-const runningDays = document.getElementById('running-days');
-const runningHistory = document.getElementById('running-history');
-const runningGarminMini = document.getElementById('running-garmin-mini');
-const runningEditGarmin = document.getElementById('running-edit-garmin');
-const runningArchive = document.getElementById('running-archive');
 
 const restEl = document.getElementById('rest');
 const restLabel = document.getElementById('rest-label');
@@ -836,207 +824,8 @@ function legacyItemHTML(item) {
     </div>`;
 }
 
-function legacyRunEntries() {
-  return legacyEntries()
-    .filter(item => item.kind === 'running')
-    .map(item => ({ id: `legacy:${item.key}`, date: item.date, km: parseKm(item.log.distance), legacy: true }))
-    .filter(entry => entry.km > 0);
-}
-
-/* ============================================================
-   Running: objetivo único de 21 km por semana
-   ============================================================ */
-const runningOpenWeeks = new Set([toISODate(mondayOf(new Date()))]);
-
-function allRunEntries() {
-  return [...state.running.entries, ...legacyRunEntries()].filter(e => isValidISODate(e.date) && e.km > 0);
-}
-
-function computeWeeks() {
-  const map = new Map();
-  allRunEntries().forEach(entry => {
-    const key = toISODate(mondayOf(parseISODate(entry.date)));
-    if (!map.has(key)) map.set(key, { key, km: 0, entries: [] });
-    const week = map.get(key);
-    week.km += entry.km;
-    week.entries.push(entry);
-  });
-  map.forEach(week => {
-    week.km = Math.round(week.km * 100) / 100;
-    week.entries.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
-  });
-  return map;
-}
-
-function weekPercent(km) {
-  return Math.floor((km / RUNNING_WEEKLY_GOAL_KM) * 100 + 1e-9);
-}
-
-function renderRunningGoal(week) {
-  const km = week.km;
-  const pct = weekPercent(km);
-  const left = Math.max(0, Math.round((RUNNING_WEEKLY_GOAL_KM - km) * 100) / 100);
-  const fill = Math.min(100, (km / RUNNING_WEEKLY_GOAL_KM) * 100);
-  const done = km >= RUNNING_WEEKLY_GOAL_KM;
-  let message;
-  if (km > RUNNING_WEEKLY_GOAL_KM) message = `Objetivo cumplido. Vas ${formatKm(km - RUNNING_WEEKLY_GOAL_KM)} km por encima de los ${RUNNING_WEEKLY_GOAL_KM}.`;
-  else if (done) message = 'Objetivo cumplido.';
-  else message = `Te faltan ${formatKm(left)} km para llegar a los ${RUNNING_WEEKLY_GOAL_KM} km.`;
-  runningGoal.classList.toggle('is-done', done);
-  runningGoal.innerHTML = `
-    <div class="goal-top">
-      <p class="goal-big">${formatKm(km)}<small>/ ${RUNNING_WEEKLY_GOAL_KM} km</small></p>
-      <p class="goal-pct">${pct}%</p>
-    </div>
-    <div class="bar" role="progressbar" aria-label="Progreso semanal de running" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(100, pct)}">
-      <i class="${done ? 'is-complete' : ''}" style="width:${fill}%"></i>
-    </div>
-    <p class="goal-msg">${message}</p>`;
-}
-
-function renderRunningDays(monday, week) {
-  const byDate = {};
-  week.entries.forEach(e => { byDate[e.date] = (byDate[e.date] || 0) + e.km; });
-  const todayIso = toISODate(new Date());
-  const cells = Array.from({ length: 7 }, (_, i) => {
-    const d = addDays(monday, i);
-    const iso = toISODate(d);
-    const km = Math.round((byDate[iso] || 0) * 100) / 100;
-    return `<div class="day-cell${iso === todayIso ? ' today' : ''}${km > 0 ? ' has-km' : ''}">
-      <span>${DAYS_SHORT[i]}</span><strong>${km > 0 ? formatKm(km) : '–'}</strong><small>${d.getDate()}/${d.getMonth() + 1}</small>
-    </div>`;
-  }).join('');
-  runningDays.innerHTML = `<div class="day-grid">${cells}</div>`;
-}
-
-function renderRunningHistory(weeks, currentKey) {
-  const keys = [...weeks.keys()].sort();
-  const first = keys.length ? keys[0] : currentKey;
-  const rows = [];
-  let cursor = parseISODate(first < currentKey ? first : currentKey);
-  const end = parseISODate(currentKey);
-  while (cursor <= end) {
-    rows.push(toISODate(cursor));
-    cursor = addDays(cursor, 7);
-  }
-  rows.reverse();
-
-  const html = rows.map(key => {
-    const week = weeks.get(key) || { key, km: 0, entries: [] };
-    const pct = weekPercent(week.km);
-    const fill = Math.min(100, (week.km / RUNNING_WEEKLY_GOAL_KM) * 100);
-    const monday = parseISODate(key);
-    const entriesHTML = week.entries.length
-      ? week.entries.map(e => {
-        const d = parseISODate(e.date);
-        const action = e.legacy
-          ? '<span class="chip">Agosto</span>'
-          : `<button type="button" class="entry-delete" data-run-delete="${esc(e.id)}" aria-label="Eliminar registro del ${esc(e.date)}">${icon('trash-2')}</button>`;
-        return `<div class="entry-row"><span>${dayShort(d)} ${fmtDM(d)}</span><strong>${formatKm(e.km)} km</strong>${action}</div>`;
-      }).join('')
-      : '<p class="empty">Sin registros esta semana.</p>';
-    return `
-      <details class="week-row" data-week="${key}"${runningOpenWeeks.has(key) ? ' open' : ''}>
-        <summary>
-          <div class="week-row-head">
-            <span class="week-row-label">${weekLabel(monday)}${key === currentKey ? ' · actual' : ''}</span>
-            <span class="week-row-km">${formatKm(week.km)} km · ${pct}%</span>
-          </div>
-          <div class="bar small"><i class="${week.km >= RUNNING_WEEKLY_GOAL_KM ? 'is-complete' : ''}" style="width:${fill}%"></i></div>
-        </summary>
-        <div class="week-row-body">${entriesHTML}</div>
-      </details>`;
-  }).join('');
-
-  runningHistory.innerHTML = `<div class="week-list">${html}</div>`;
-}
-
-function renderRunningArchive() {
-  const items = legacyEntries().filter(item => item.kind === 'running');
-  if (!items.length) {
-    runningArchive.hidden = true;
-    runningArchive.innerHTML = '';
-    return;
-  }
-  runningArchive.hidden = false;
-  const wasOpen = runningArchive.open;
-  runningArchive.innerHTML = `
-    <summary>Sesiones de running de Agosto (plan anterior)</summary>
-    <p class="hint">Historial conservado. Sus kilómetros ya cuentan en el historial semanal.</p>
-    <div class="legacy-list">${items.map(legacyItemHTML).join('')}</div>`;
-  runningArchive.open = wasOpen;
-}
-
-function renderRunning() {
-  const now = new Date();
-  const monday = mondayOf(now);
-  const currentKey = toISODate(monday);
-  const weeks = computeWeeks();
-  const week = weeks.get(currentKey) || { key: currentKey, km: 0, entries: [] };
-  runningRange.textContent = `Semana ${weekLabel(monday)}`;
-  renderRunningGoal(week);
-  renderRunningDays(monday, week);
-  renderRunningHistory(weeks, currentKey);
-  renderRunningGarmin();
-  renderRunningArchive();
-  const todayIso = toISODate(now);
-  runningDate.max = todayIso;
-  if (!runningDate.value) runningDate.value = todayIso;
-}
-
-runningForm.addEventListener('submit', evt => {
-  evt.preventDefault();
-  const date = runningDate.value;
-  const km = parseKm(runningKm.value);
-  const showError = msg => {
-    runningError.textContent = msg;
-    runningError.hidden = false;
-  };
-  if (!isValidISODate(date)) return showError('Elegí un día válido.');
-  if (date > toISODate(new Date())) return showError('El día no puede ser futuro.');
-  if (Number.isNaN(km) || km <= 0) return showError('Ingresá los kilómetros (por ejemplo 5,2).');
-  if (km > 300) return showError('Ese valor de kilómetros parece incorrecto.');
-  runningError.hidden = true;
-  state.running.entries.push({ id: uid(), date, km });
-  saveState();
-  runningKm.value = '';
-  runningOpenWeeks.add(toISODate(mondayOf(parseISODate(date))));
-  renderRunning();
-  showToast(`Agregaste ${formatKm(km)} km`);
-});
-
-runningHistory.addEventListener('click', evt => {
-  const btn = evt.target.closest('[data-run-delete]');
-  if (!btn) return;
-  evt.preventDefault();
-  const id = btn.dataset.runDelete;
-  armConfirm(btn, '¿Borrar?', () => {
-    state.running.entries = state.running.entries.filter(e => e.id !== id);
-    saveState();
-    renderRunning();
-  });
-});
-
-runningHistory.addEventListener('toggle', evt => {
-  const details = evt.target;
-  if (!details.matches || !details.matches('details.week-row')) return;
-  if (details.open) runningOpenWeeks.add(details.dataset.week);
-  else runningOpenWeeks.delete(details.dataset.week);
-}, true);
-
-/* Referencia Garmin */
-function renderRunningGarmin() {
-  const g = state.garminManual;
-  const stat = (label, value) => `<div class="stat"><span>${label}</span><strong>${esc(value)}</strong></div>`;
-  runningGarminMini.innerHTML =
-    stat('VO2 máx', g.vo2max) +
-    stat('FC reposo', `${g.restingHr} ppm`) +
-    stat('Umbral', `${g.threshold} ppm`) +
-    stat('Ritmo umbral', `${g.thresholdPace}/km`) +
-    stat('Potencia umbral', `${g.thresholdPower} W`);
-}
-
-runningEditGarmin.addEventListener('click', () => updateNav('screen-settings'));
+/* La pestaña Running se quitó (17 nov 2026). Los km registrados siguen guardados en state.running
+   y en el respaldo; el historial de Agosto (incluido running) se conserva en state.august. */
 
 function renderGarminSettings() {
   const g = state.garminManual;
@@ -1058,14 +847,12 @@ function renderGarminSettings() {
     state.garminManual.thresholdPower = Number(garminManualThresholdPower.value);
     state.garminManual.relativePower = Number(garminManualRelativePower.value);
     saveState();
-    renderRunningGarmin();
   });
 });
 
 garminManualThresholdPace.addEventListener('change', () => {
   state.garminManual.thresholdPace = garminManualThresholdPace.value.trim();
   saveState();
-  renderRunningGarmin();
 });
 
 /* ============================================================
@@ -2076,7 +1863,6 @@ backupImport.addEventListener('change', () => {
 
 function renderAll() {
   renderRoutines();
-  renderRunning();
   renderGarminSettings();
 }
 

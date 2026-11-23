@@ -23,7 +23,7 @@ Aplicación web estática para seguir tu rutina de gimnasio.
 ## Funcionalidades incluidas
 
 - Pantalla `Running`: quitada el 17 nov 2026. Los km registrados siguen guardados en el navegador y en el respaldo (`running.entries`).
-- Pantalla `Rutinas`: rutina activa **Rutina 1 · Semana 1** (4 días, desde la pestaña “Rutina 1 - Semana 1 - 16-11-2026” de la planilla de Juan Pablo) con series de aproximación vs. efectivas, pesos estimados como "Pendiente de confirmar", aclaraciones y videos del entrenador, marcado de cada serie, peso y repeticiones reales, cargas editables, historial de entrenamientos y última/mejor marca por ejercicio. La rutina anterior queda archivada.
+- Pantalla `Rutinas`: rutina activa **Rutina 1 · Semana 2** (4 días, desde la pestaña “Rutina 1 - Semana 2 - 23-11-2026” de la planilla de Juan Pablo) con series de aproximación vs. efectivas, pesos estimados como "Pendiente de confirmar", aclaraciones y videos del entrenador, marcado de cada serie, peso y repeticiones reales, cargas editables, historial de entrenamientos y última/mejor marca por ejercicio. Las rutinas anteriores quedan archivadas.
 - Datos Garmin editables desde Ajustes (manual).
 - Almacenamiento en `localStorage` (clave `dark-gym-planner-v1`): el historial anterior se conserva.
 
@@ -73,6 +73,16 @@ Aplicación web estática para seguir tu rutina de gimnasio.
 - Por ejercicio: evolución de cargas (últimos entrenamientos) y observaciones personales, que se guardan con cada entrenamiento.
 - Peso o repeticiones que la planilla no indica: el campo dice “Completar” y se carga a mano.
 - Para cargar la próxima semana: subir `GYM_ROUTINE_REV`, agregar la semana a `GYM_WEEKS`, ajustar `GYM_ROUTINE` y agregar el paso de migración en `migrateGymWeek`.
+
+## Rutina 1 · Semana 2 (23 nov 2026)
+
+- Rutina vigente: pestaña “Rutina 1 - Semana 2 - 23-11-2026” (verificada en la planilla de Juan Pablo). Son 4 días, igual que la Semana 1; el Día 3 incluye “Elevaciones de rodilla” (2 × 8–10, peso corporal).
+- Cargas, series, repeticiones y descansos exactamente como en la planilla. Sin ejercicios nuevos ni progresiones propias.
+- Sentadilla, series efectivas: 3 × 5 con 55 kg (valor de la planilla); se conserva la aclaración original de Juan Pablo, que menciona 45 kg.
+- Smith: se muestran los kilos por lado y el total de discos, sin asumir el peso de la barra de la máquina.
+- La Semana 1 (16–22 nov) queda cerrada y consultable en el Historial y en “Rutinas anteriores”. Las sesiones que hubieran quedado a medias pasan al historial como “Incompleto”; las cargas editadas quedan en `gym.weekArchive.r1s1`. No se borra ni se modifica ningún entrenamiento, intensidad ni observación guardados (incluidas las de isquios).
+- Los ejercicios conservan sus ids (`d1-c1`, `d2-b3-maquina`, …): la última marca, la mejor y la evolución de cargas siguen con los registros anteriores.
+- Para cargar la próxima semana: subir `GYM_ROUTINE_REV`, agregar la semana a `GYM_WEEKS`, archivar la rutina vigente (como `R1S1_ROUTINE`), ajustar `GYM_ROUTINE` y agregar el paso de migración en `migrateGymWeek`.
 
 ## Sin pestaña Running (17 nov 2026)
 

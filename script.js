@@ -1,16 +1,19 @@
 const STORAGE_KEY = 'dark-gym-planner-v1';
 
-// Rutina vigente: "Rutina 1 - Semana 1 - 16-11-2026" de Juan Pablo.
-const GYM_ROUTINE_ID = 'juan-pablo-rutina-1-2026-11-16';
+// Rutina vigente: "Rutina 1 - Semana 2 - 23-11-2026" de Juan Pablo.
+const GYM_ROUTINE_ID = 'juan-pablo-rutina-1-semana-2-2026-11-23';
+// Rutina 1 · Semana 1 (16 nov 2026), archivada. Sus entrenamientos guardados conservan este id.
+const R1S1_ROUTINE_ID = 'juan-pablo-rutina-1-2026-11-16';
 // Rutina anterior ("Entrenamiento Dali", Semanas 1 a 3). Sus entrenamientos guardados conservan este id.
 const PREV_ROUTINE_ID = 'entrenamiento-dali-2026-10-10';
 // Revisión de la rutina del entrenador. Al cambiar, se migran las cargas guardadas (ver normalizeState).
-const GYM_ROUTINE_REV = 'rutina-1-semana-1-2026-11-16';
+const GYM_ROUTINE_REV = 'rutina-1-semana-2-2026-11-23';
 
 /* Semanas de la rutina. La vigente es la primera. Las demás quedan cerradas: se pueden consultar pero ya no se les cargan entrenamientos.
    optional: solo aparece en el historial si tiene entrenamientos (la app no tuvo cargada esa semana de la planilla).
    Los entrenamientos se ubican en la semana en que se hicieron (ver weekIdOf). */
 const GYM_WEEKS = [
+  { id: 'r1s2', label: 'Rutina 1 · Semana 2', range: '23 – 29 nov', start: '2026-11-23', end: '2026-11-29' },
   { id: 'r1s1', label: 'Rutina 1 · Semana 1', range: '16 – 22 nov', start: '2026-11-16', end: '2026-11-22' },
   { id: 's4', label: 'Semana 4', range: '2 – 8 nov', start: '2026-11-02', end: '2026-11-08', optional: true },
   { id: 's3', label: 'Semana 3', range: '26 oct – 1 nov', start: '2026-10-26', end: '2026-11-01' },
@@ -20,6 +23,8 @@ const GYM_WEEKS = [
 const ACTIVE_WEEK = GYM_WEEKS[0];
 // Semana con la que cerró la rutina anterior (la app la tuvo cargada hasta el 15 nov).
 const PREV_WEEK_ID = 's3';
+// Primera semana de la Rutina 1 y semana inmediatamente anterior a la vigente.
+const R1_FIRST_WEEK_ID = 'r1s1';
 const BAR_KG = 20; // barra olímpica (la planilla cuenta siempre la barra)
 
 function weekIdOfDate(date) {
@@ -111,7 +116,8 @@ const LEGACY_AUGUST = [
 
 /* ============================================================
    Rutinas de gimnasio de Juan Pablo (planilla "Entrenamiento Dali")
-   - GYM_ROUTINE: rutina vigente, "Rutina 1 - Semana 1 - 16-11-2026".
+   - GYM_ROUTINE: rutina vigente, "Rutina 1 - Semana 2 - 23-11-2026".
+   - R1S1_ROUTINE: "Rutina 1 - Semana 1 - 16-11-2026", archivada.
    - PREV_ROUTINE: rutina anterior (Semana 3, 26 oct 2026), archivada.
      Se conserva para mostrarla como referencia y para pasar al
      historial las sesiones que quedaron a medias.
@@ -234,14 +240,15 @@ const PREV_ROUTINE = {
   ],
 };
 
-/* Rutina vigente. Fuente: pestaña "Rutina 1 - Semana 1 - 16-11-2026".
+/* Rutina 1 · Semana 1 (ARCHIVADA, vigente en la app del 16 al 22 nov). Fuente: pestaña "Rutina 1 - Semana 1 - 16-11-2026".
    - Orden, series, repeticiones, descansos, pesos, aclaraciones y links tal como están en la planilla.
    - Los números sueltos debajo de los bloques A ("1" y "2") son las vueltas de los ejercicios sin series propias.
    - Sentadilla (Día 3) y peso muerto (Día 4): las filas livianas con 60" de descanso son aproximación.
    - El Día 4 figura como "Piernas II" en la planilla; en la app se llama "Piernas III" para diferenciarlo del Día 3. */
-const GYM_ROUTINE = {
-  id: GYM_ROUTINE_ID,
+const R1S1_ROUTINE = {
+  id: R1S1_ROUTINE_ID,
   name: 'Rutina 1 · Semana 1',
+  period: 'vigente en la app del 16 al 22 nov',
   source: 'Planilla de Juan Pablo “Entrenamiento Dali”, pestaña “Rutina 1 - Semana 1 - 16-11-2026”',
   days: [
     {
@@ -315,6 +322,88 @@ const GYM_ROUTINE = {
   ],
 };
 
+/* Rutina vigente. Fuente: pestaña "Rutina 1 - Semana 2 - 23-11-2026" (verificada en la planilla de Juan Pablo el 23 nov 2026).
+   - Orden, series, repeticiones, descansos, pesos, aclaraciones y links tal como están en la planilla.
+   - Los números sueltos debajo de los bloques A ("1" y "2") son las vueltas de los ejercicios sin series propias.
+   - Sentadilla (Día 3) y peso muerto (Día 4): las filas livianas con 60" de descanso son aproximación.
+   - Sentadilla, series efectivas: la planilla registra 55 kg y conserva la aclaración original ("subi a 45 ..."). Se respetan las dos.
+   - La planilla tiene 4 días. El Día 4 figura como "Piernas II" en la planilla; en la app se llama "Piernas III" para diferenciarlo del Día 3. */
+const GYM_ROUTINE = {
+  id: GYM_ROUTINE_ID,
+  name: 'Rutina 1 · Semana 2',
+  source: 'Planilla de Juan Pablo “Entrenamiento Dali”, pestaña “Rutina 1 - Semana 2 - 23-11-2026”',
+  days: [
+    {
+      id: 'd1', title: 'Día 1 - Pierna I', focus: 'Glúteos e isquios',
+      exercises: [
+        ...circuitoCadera('d1', null),
+        X('d1', 'B1', 'Hip Thrust', { trackWeight: true, bar: { mode: 'total', kg: BAR_KG }, sets: [S(3, '6-8', '120-180"', '90 kg')],
+          allowApproach: { weight: '60 - 80 kg' },
+          note: 'hace unas series antes de aproximacion con 60 - 80 kg - a partir de ahora empezamos a contar siempre la barra' }),
+        X('d1', 'B2', 'Estocadas búlgaras', { trackWeight: true, bar: { mode: 'discs' }, sets: [S(2, '8-10', '120-180"', '15 kg + barra')] }),
+        X('d1', 'B3', 'Peso muerto rumano', { trackWeight: true, bar: { mode: 'total', kg: BAR_KG }, sets: [S(3, '8-10', '120-180"', '40 kg')] }),
+        X('d1', 'C1', 'Isquios en máquina', { trackWeight: true, sets: [S(2, '8-10', '60-90"', '25 kg')],
+          note: 'Si te duele detrás de la rodilla, cortá antes el movimiento o bajá más el peso.' }),
+        X('d1', 'C2', 'Abductores en polea', { trackWeight: true, sets: [S(2, '10', '60-90"', '10 por pierna')] }),
+        X('d1', 'C3', 'Pata de glúteo en polea', { trackWeight: true, sets: [S(2, '12-15', '60-90"', '15 kg')] }),
+      ],
+    },
+    {
+      id: 'd2', title: 'Día 2 - Superior I', focus: 'Espalda, hombros y tríceps',
+      exercises: [
+        X('d2', 'A1', 'Movilidad general', { seriesLabel: '1 de cada uno', checkOnly: true, sets: [S(1, '10 x lado', 'mínimo')], links: [lnk('Video', LINKS.movilidad)] }),
+        X('d2', 'A2', 'Protocolo de muñecas', { checkOnly: true, sets: [S(1, '10 c/u')], links: [lnk('Video', LINKS.munecas)],
+          note: 'Los protocolos de movilidad son para articulaciones específicas. A las muñecas hay que darle mucha importancia, porque es la parte más débil en general y muchas veces vamos a llevar el peso del cuerpo sobre esa base - haciendo estos movimientos se va fortaleciendo y mejorando los rangos de movimiento. Seguir el vídeo aunque sea una vez y después lo vas haciendo solo las próximas veces.' }),
+        X('d2', 'A3', 'Protocolo de hombros', { checkOnly: true, sets: [S(1, '1 vuelta')], links: [lnk('Video', LINKS.hombros)],
+          note: 'Seguir el video con los ejercicios y repetiicones indicadas -' }),
+        X('d2', 'A4', 'Cat-cow', { checkOnly: true, sets: [S(1, '10')] }),
+        X('d2', 'A5', 'Activaciones escapulares en plancha alta', { checkOnly: true, sets: [S(2, '8')],
+          links: [lnk('Video 1', LINKS.escapularPlancha1), lnk('Video 2', LINKS.escapularPlancha2)],
+          note: 'Estas activaciones vamos a hacerlas con un rango amplio -  la idea es "despegar" las escapulas, a fuerza de repetir el movimiento, así que no debe ser algo "cansador" - podes hacerlo arrodillado igual que en las flexiones para disminuirle díficultad.-' }),
+        X('d2', 'A6', 'Activaciones escapulares simples en barra', { checkOnly: true, sets: [S(2, '8', '60-90"')], links: [lnk('Video', LINKS.escapularBarra)],
+          note: 'La idea es hacer una activación escapular en retracción y depresión (cerrando y bajando) las escapulas, pero manteniendote colgado siempre - los codos quedan bloqueados y el movimiento es solo de escapulas!' }),
+        X('d2', 'A7', 'Plancha alta', { sets: [S(2, '20"')], links: [lnk('Video', LINKS.planchaAlta)],
+          note: 'Siguiendo los gestos practicados en A5- y A6, vamos a incorporarlo en una posicion completa - la idea sería poder dejar las escapulas abiertas (protracción) y la pelvis "cerrada" (en retroversión) - El resto de la técnica consiste en posicionar las manos a la altura de los hombros, mantener alineadas la cadera con los hombros, y apretar muy fuerte todos los musculos implicados (abdominales, gluteos, cuadriceps, triceps) para ejercer la mayor tensión posible. Este ejercicio bien hecho debería ejercer muchisima tensión.' }),
+        X('d2', 'B1', 'Dominadas negativas', { sets: [S(2, '1', '60-90"')], links: [lnk('Video', LINKS.dominadasNegativas)],
+          note: '3-5" de bajada - marca arriba antes de subir, quedate 1 o 2" bien solida antes de empezar a bajar.' }),
+        X('d2', 'B2', 'Tirones en polea', { trackWeight: true, sets: [S(2, '8-10', '60-90"', '25 kg')] }),
+        X('d2', 'B3', 'Remo en máquina', { id: 'd2-b3-maquina', trackWeight: true, sets: [S(2, '8-10', '60-90"', '20 kg')] }),
+        X('d2', 'C1', 'Press militar con mancuernas', { trackWeight: true, sets: [S(2, '6-8', '60-90"', '8 kg')] }),
+        X('d2', 'C2', 'Vuelos laterales', { trackWeight: true, sets: [S(2, '10-12', '60-90"', '6 kg')] }),
+        X('d2', 'C3', 'Face pull', { trackWeight: true, sets: [S(2, '8-10', '60-90"', '15 kg')] }),
+        X('d2', 'D1', 'Tríceps en polea descendente', { trackWeight: true, sets: [S(2, '8-10', '60-90"', '12,5 kg')] }),
+      ],
+    },
+    {
+      id: 'd3', title: 'Día 3 - Piernas II', focus: 'Cuádriceps y aductores',
+      exercises: [
+        ...circuitoCadera('d3', null),
+        X('d3', 'B1', 'Sentadilla', { trackWeight: true, bar: { mode: 'total', kg: BAR_KG },
+          sets: [AP(1, '10', '60"', '20 kg'), AP(1, '6', '60"', '30 kg'), S(3, '5', '120-180"', '55 kg')],
+          note: 'Empezamos a escalar las sentadillas para usar rangos mas bajos de repes y mas pesados - subi a 45 porque ya haces 10 con 40 para empzar a estimar -' }),
+        X('d3', 'B2', 'Sentadilla en smith enfoque cuádriceps', { trackWeight: true, bar: { mode: 'side' }, sets: [S(2, '8', '90-120"', '12,5 kg x lado')] }),
+        X('d3', 'B3', 'Prensa', { trackWeight: true, sets: [S(2, '8-10', '90-120"', '70 kg')] }),
+        X('d3', 'C1', 'Cuádriceps en máquina', { trackWeight: true, sets: [S(3, '8-10', '60-90"', '40 kg')] }),
+        X('d3', 'C3', 'Aductores', { trackWeight: true, sets: [S(2, '12', '60-90"', '35 kg')] }),
+        X('d3', 'D1', 'Elevaciones de rodilla', { trackWeight: true, sets: [S(2, '8-10', '60-90"', 'BW')], note: 'BW = peso corporal' }),
+      ],
+    },
+    {
+      id: 'd4', title: 'Día 4 - Piernas III', focus: 'Peso muerto y glúteos',
+      exercises: [
+        ...circuitoCadera('d4', LINKS.buenosDias),
+        X('d4', 'B1', 'Peso muerto convencional', { trackWeight: true, bar: { mode: 'total', kg: BAR_KG },
+          sets: [AP(1, '5', '60"', '30 kg'), AP(1, '3', '60"', '50 kg'), S(3, '5', '120-180"', '55 kg')] }),
+        X('d4', 'B2', 'Hip thrust', { trackWeight: true, bar: { mode: 'total', kg: BAR_KG }, sets: [S(2, '10-12', '120-180"', '80 kg')],
+          note: 'Probamos con este peso para arrancar, puede ser 100 también si 90 es muy fácil. Y hacerlas lentas' }),
+        X('d4', 'C1', 'Isquios en máquina', { trackWeight: true, sets: [S(2, '10-12', '60-90"', '30 kg')] }),
+        X('d4', 'C2', 'Abductores en polea', { trackWeight: true, sets: [S(2, '10-12', '60-90"', '10 por pierna')] }),
+        X('d4', 'C3', 'Pata de glúteo en polea', { trackWeight: true, sets: [S(2, '15-20', '60-90"', '20 kg')] }),
+      ],
+    },
+  ],
+};
+
 /* Bloque A = movilidad y activación (se ven distinto de los ejercicios de fuerza). */
 function mobilityKind(ex) {
   if (ex.code.charAt(0) !== 'A') return '';
@@ -339,8 +428,10 @@ function prepareRoutine(routine, index) {
 }
 
 const EX_INDEX = {};
+const R1S1_EX_INDEX = {};
 const PREV_EX_INDEX = {};
 prepareRoutine(GYM_ROUTINE, EX_INDEX);
+prepareRoutine(R1S1_ROUTINE, R1S1_EX_INDEX);
 prepareRoutine(PREV_ROUTINE, PREV_EX_INDEX);
 
 /* ============================================================
@@ -478,8 +569,10 @@ function migrateGymLoads(gym) {
 function migrateGymWeek(gym) {
   if (!gym.weekArchive || typeof gym.weekArchive !== 'object') gym.weekArchive = {};
   if (gym.week === ACTIVE_WEEK.id) return;
-  if (gym.week !== PREV_WEEK_ID) migrateWeekS2toS3(gym);
-  migrateToRutina1(gym);
+  // Cada paso corre solo si los datos todavía no lo hicieron: s2 → s3 → r1s1 → r1s2
+  if (gym.week !== PREV_WEEK_ID && gym.week !== R1_FIRST_WEEK_ID) migrateWeekS2toS3(gym);
+  if (gym.week !== R1_FIRST_WEEK_ID) migrateToRutina1(gym);
+  migrateToRutina1Semana2(gym);
   gym.history.sort(compareHistory);
   gym.week = ACTIVE_WEEK.id;
   gym.rev = GYM_ROUTINE_REV;
@@ -546,6 +639,25 @@ function migrateToRutina1(gym) {
     return d;
   });
   if (!gym.weekArchive[PREV_WEEK_ID]) gym.weekArchive[PREV_WEEK_ID] = { loads: gym.loads, confirmed: gym.confirmed };
+  gym.loads = {};
+  gym.confirmed = {};
+  gym.week = R1_FIRST_WEEK_ID;
+}
+
+/* Rutina 1 · Semana 1 (16 nov) → Rutina 1 · Semana 2 (23 nov).
+   - Las sesiones a medias pasan al historial de la Semana 1 como "Incompleto", con la fecha en que se empezaron.
+   - Las cargas que habías editado o confirmado quedan guardadas en weekArchive.r1s1; la Semana 2 arranca con los pesos de Juan Pablo.
+   - No se borra ni se modifica ningún entrenamiento ni observación guardados. */
+function migrateToRutina1Semana2(gym) {
+  const closing = GYM_WEEKS.find(w => w.id === R1_FIRST_WEEK_ID);
+  const today = toISODate(new Date());
+  closeOpenSessions(gym, R1S1_ROUTINE, closing.id, date => {
+    let d = isValidISODate(date) ? date : today;
+    if (d > closing.end) d = closing.end;
+    if (d < closing.start) d = closing.start;
+    return d;
+  });
+  if (!gym.weekArchive[closing.id]) gym.weekArchive[closing.id] = { loads: gym.loads, confirmed: gym.confirmed };
   gym.loads = {};
   gym.confirmed = {};
 }
@@ -1626,12 +1738,12 @@ function renderGymOverview() {
 const openGymWeeks = new Set([ACTIVE_WEEK.id]);
 
 function histExerciseOf(h, exId) {
-  const primary = h.routineId === GYM_ROUTINE_ID ? EX_INDEX : PREV_EX_INDEX;
-  return primary[exId] || EX_INDEX[exId] || PREV_EX_INDEX[exId];
+  const primary = h.routineId === GYM_ROUTINE_ID ? EX_INDEX : h.routineId === R1S1_ROUTINE_ID ? R1S1_EX_INDEX : PREV_EX_INDEX;
+  return primary[exId] || EX_INDEX[exId] || R1S1_EX_INDEX[exId] || PREV_EX_INDEX[exId];
 }
 
 function histRowHTML(h) {
-  // Entrenamiento hecho con la rutina anterior que cae en una semana de la Rutina 1.
+  // Entrenamiento hecho con una rutina anterior que cae en la semana vigente.
   const prevTag = h.routineId && h.routineId !== GYM_ROUTINE_ID && h.date >= ACTIVE_WEEK.start ? ' <span class="status-pill">Rutina anterior</span>' : '';
   if (h.status === 'no_realizado') {
     return `
@@ -1650,7 +1762,7 @@ function histRowHTML(h) {
         ${e.note ? `<span class="hist-note">“${esc(e.note)}”</span>` : ''}
       </div>`;
   }).join('');
-  const partialWhy = h.weekId === 's2' ? 'al cerrar la Semana 2' : 'al pasar a la Rutina 1';
+  const partialWhy = h.weekId === 's2' ? 'al cerrar la Semana 2' : h.weekId === R1_FIRST_WEEK_ID ? 'al pasar a la Semana 2 de la Rutina 1' : 'al pasar a la Rutina 1';
   return `
     <details class="hrow">
       <summary>
@@ -1698,13 +1810,14 @@ function historyGroups() {
 function renderGymHistory() {
   const total = GYM_ROUTINE.days.length;
   const prevWeek = GYM_WEEKS.find(w => w.id === PREV_WEEK_ID);
+  const firstR1Week = GYM_WEEKS.find(w => w.id === R1_FIRST_WEEK_ID);
   const html = historyGroups().map(w => {
     const items = w.items;
     const days = new Set(items.filter(h => h.status !== 'no_realizado').map(h => h.dayId)).size;
     const active = w.id === ACTIVE_WEEK.id;
     const after = !active && w.start > ACTIVE_WEEK.end;
     // Semanas entre el fin de la Semana 3 y la Rutina 1: la app tenía cargada la rutina de la Semana 3.
-    const gap = w.start > prevWeek.end && w.start < ACTIVE_WEEK.start;
+    const gap = w.start > prevWeek.end && w.start < firstR1Week.start;
     const body = items.length
       ? `${gap ? '<p class="hint">En esta semana la app tenía cargada la rutina de la Semana 3.</p>' : ''}<div class="hist">${items.map(histRowHTML).join('')}</div>`
       : '<p class="empty">Sin entrenamientos guardados en la app.</p>';
@@ -1757,15 +1870,19 @@ function renderGymLegacy() {
   const items = legacyEntries().filter(item => item.kind !== 'running');
   const oldWorkouts = LEGACY_GYM_IDS.map(id => WORKOUTS.find(w => w.id === id)).filter(Boolean);
   const wasOpen = gymLegacy.open;
-  const prevDays = PREV_ROUTINE.days.map(day => `
+  const routineDays = routine => routine.days.map(day => `
         <div class="legacy-item">
           <p class="legacy-item-title">${esc(day.title)}</p>
           <ul class="compact">${day.exercises.map(ex => `<li>${esc(ex.code)} ${esc(ex.name)} — ${esc(routineExLine(ex))}</li>`).join('')}</ul>
         </div>`).join('');
+  const r1s1Days = routineDays(R1S1_ROUTINE);
+  const prevDays = routineDays(PREV_ROUTINE);
   gymLegacy.innerHTML = `
     <summary>Rutinas anteriores (archivadas)</summary>
     <p class="hint">Ya no están activas. Se conservan como referencia; tus entrenamientos siguen en el Historial.</p>
     <div class="legacy-list">
+      <p class="legacy-sep">${esc(R1S1_ROUTINE.name)} · ${esc(R1S1_ROUTINE.period)}</p>
+      ${r1s1Days}
       <p class="legacy-sep">${esc(PREV_ROUTINE.name)} · ${esc(PREV_ROUTINE.period)}</p>
       ${prevDays}
       <p class="legacy-sep">Rutina de Agosto</p>

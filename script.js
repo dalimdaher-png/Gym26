@@ -324,7 +324,7 @@ const R1S1_ROUTINE = {
 
 /* Rutina vigente. Fuente: pestaña "Rutina 1 - Semana 2 - 23-11-2026" (verificada en la planilla de Juan Pablo el 23 nov 2026).
    - Orden, series, repeticiones, descansos, pesos, aclaraciones y links tal como están en la planilla.
-   - Los números sueltos debajo de los bloques A ("1" y "2") son las vueltas de los ejercicios sin series propias.
+   - Bloque A (movilidad y activación) quitado de la app a pedido de Dalila (23 nov 2026); la planilla lo sigue teniendo.
    - Sentadilla (Día 3) y peso muerto (Día 4): las filas livianas con 60" de descanso son aproximación.
    - Sentadilla, series efectivas: la planilla registra 55 kg y conserva la aclaración original ("subi a 45 ..."). Se respetan las dos.
    - La planilla tiene 4 días. El Día 4 figura como "Piernas II" en la planilla; en la app se llama "Piernas III" para diferenciarlo del Día 3. */
@@ -336,7 +336,6 @@ const GYM_ROUTINE = {
     {
       id: 'd1', title: 'Día 1 - Pierna I', focus: 'Glúteos e isquios',
       exercises: [
-        ...circuitoCadera('d1', null),
         X('d1', 'B1', 'Hip Thrust', { trackWeight: true, bar: { mode: 'total', kg: BAR_KG }, sets: [S(3, '6-8', '120-180"', '90 kg')],
           allowApproach: { weight: '60 - 80 kg' },
           note: 'hace unas series antes de aproximacion con 60 - 80 kg - a partir de ahora empezamos a contar siempre la barra' }),
@@ -351,19 +350,6 @@ const GYM_ROUTINE = {
     {
       id: 'd2', title: 'Día 2 - Superior I', focus: 'Espalda, hombros y tríceps',
       exercises: [
-        X('d2', 'A1', 'Movilidad general', { seriesLabel: '1 de cada uno', checkOnly: true, sets: [S(1, '10 x lado', 'mínimo')], links: [lnk('Video', LINKS.movilidad)] }),
-        X('d2', 'A2', 'Protocolo de muñecas', { checkOnly: true, sets: [S(1, '10 c/u')], links: [lnk('Video', LINKS.munecas)],
-          note: 'Los protocolos de movilidad son para articulaciones específicas. A las muñecas hay que darle mucha importancia, porque es la parte más débil en general y muchas veces vamos a llevar el peso del cuerpo sobre esa base - haciendo estos movimientos se va fortaleciendo y mejorando los rangos de movimiento. Seguir el vídeo aunque sea una vez y después lo vas haciendo solo las próximas veces.' }),
-        X('d2', 'A3', 'Protocolo de hombros', { checkOnly: true, sets: [S(1, '1 vuelta')], links: [lnk('Video', LINKS.hombros)],
-          note: 'Seguir el video con los ejercicios y repetiicones indicadas -' }),
-        X('d2', 'A4', 'Cat-cow', { checkOnly: true, sets: [S(1, '10')] }),
-        X('d2', 'A5', 'Activaciones escapulares en plancha alta', { checkOnly: true, sets: [S(2, '8')],
-          links: [lnk('Video 1', LINKS.escapularPlancha1), lnk('Video 2', LINKS.escapularPlancha2)],
-          note: 'Estas activaciones vamos a hacerlas con un rango amplio -  la idea es "despegar" las escapulas, a fuerza de repetir el movimiento, así que no debe ser algo "cansador" - podes hacerlo arrodillado igual que en las flexiones para disminuirle díficultad.-' }),
-        X('d2', 'A6', 'Activaciones escapulares simples en barra', { checkOnly: true, sets: [S(2, '8', '60-90"')], links: [lnk('Video', LINKS.escapularBarra)],
-          note: 'La idea es hacer una activación escapular en retracción y depresión (cerrando y bajando) las escapulas, pero manteniendote colgado siempre - los codos quedan bloqueados y el movimiento es solo de escapulas!' }),
-        X('d2', 'A7', 'Plancha alta', { sets: [S(2, '20"')], links: [lnk('Video', LINKS.planchaAlta)],
-          note: 'Siguiendo los gestos practicados en A5- y A6, vamos a incorporarlo en una posicion completa - la idea sería poder dejar las escapulas abiertas (protracción) y la pelvis "cerrada" (en retroversión) - El resto de la técnica consiste en posicionar las manos a la altura de los hombros, mantener alineadas la cadera con los hombros, y apretar muy fuerte todos los musculos implicados (abdominales, gluteos, cuadriceps, triceps) para ejercer la mayor tensión posible. Este ejercicio bien hecho debería ejercer muchisima tensión.' }),
         X('d2', 'B1', 'Dominadas negativas', { sets: [S(2, '1', '60-90"')], links: [lnk('Video', LINKS.dominadasNegativas)],
           note: '3-5" de bajada - marca arriba antes de subir, quedate 1 o 2" bien solida antes de empezar a bajar.' }),
         X('d2', 'B2', 'Tirones en polea', { trackWeight: true, sets: [S(2, '8-10', '60-90"', '25 kg')] }),
@@ -377,7 +363,6 @@ const GYM_ROUTINE = {
     {
       id: 'd3', title: 'Día 3 - Piernas II', focus: 'Cuádriceps y aductores',
       exercises: [
-        ...circuitoCadera('d3', null),
         X('d3', 'B1', 'Sentadilla', { trackWeight: true, bar: { mode: 'total', kg: BAR_KG },
           sets: [AP(1, '10', '60"', '20 kg'), AP(1, '6', '60"', '30 kg'), S(3, '5', '120-180"', '55 kg')],
           note: 'Empezamos a escalar las sentadillas para usar rangos mas bajos de repes y mas pesados - subi a 45 porque ya haces 10 con 40 para empzar a estimar -' }),
@@ -391,7 +376,6 @@ const GYM_ROUTINE = {
     {
       id: 'd4', title: 'Día 4 - Piernas III', focus: 'Peso muerto y glúteos',
       exercises: [
-        ...circuitoCadera('d4', LINKS.buenosDias),
         X('d4', 'B1', 'Peso muerto convencional', { trackWeight: true, bar: { mode: 'total', kg: BAR_KG },
           sets: [AP(1, '5', '60"', '30 kg'), AP(1, '3', '60"', '50 kg'), S(3, '5', '120-180"', '55 kg')] }),
         X('d4', 'B2', 'Hip thrust', { trackWeight: true, bar: { mode: 'total', kg: BAR_KG }, sets: [S(2, '10-12', '120-180"', '80 kg')],

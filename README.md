@@ -77,6 +77,7 @@ Aplicación web estática para seguir tu rutina de gimnasio.
 ## Rutina 1 · Semana 2 (23 nov 2026)
 
 - Rutina vigente: pestaña “Rutina 1 - Semana 2 - 23-11-2026” (verificada en la planilla de Juan Pablo). Son 4 días, igual que la Semana 1; el Día 3 incluye “Elevaciones de rodilla” (2 × 8–10, peso corporal).
+- Sin bloque A (movilidad y activación): se quitó de la app el 23 nov 2026 a pedido de Dalila; la planilla lo sigue teniendo y los registros anteriores que lo incluyen se conservan en el Historial.
 - Cargas, series, repeticiones y descansos exactamente como en la planilla. Sin ejercicios nuevos ni progresiones propias.
 - Sentadilla, series efectivas: 3 × 5 con 55 kg (valor de la planilla); se conserva la aclaración original de Juan Pablo, que menciona 45 kg.
 - Smith: se muestran los kilos por lado y el total de discos, sin asumir el peso de la barra de la máquina.
